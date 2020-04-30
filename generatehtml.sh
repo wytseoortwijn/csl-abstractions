@@ -1,0 +1,1 @@
+/Applications/CoqIDE_8.11.0.app/Contents/Resources/bin/coqdoc -g --html -d ./html *.v

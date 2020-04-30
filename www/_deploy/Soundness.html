@@ -1,0 +1,1261 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>Soundness</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library Soundness</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Assertions</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">HahnBase</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Heaps</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">HeapSolver</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">List</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Permissions</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">PermSolver</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Permutation</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">PermutationTactic</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Prelude</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Process</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">ProcMap</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">ProcMapSolver</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Programs</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">QArith</span> <span class="id" title="var">Qcanon</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Import</span> <span class="id" title="var">ListNotations</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Set Implicit Arguments</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab181"></a><h1 class="section">Soundness</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Module</span> <span class="id" title="keyword">Type</span> <span class="id" title="var">Soundness</span><br/>
+&nbsp;&nbsp;(<span class="id" title="var">domains</span> : <span class="id" title="var">Domains</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">heaps</span> : <span class="id" title="var">Heaps</span> <span class="id" title="var">domains</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">hsolver</span> : <span class="id" title="var">HeapSolver</span> <span class="id" title="var">domains</span> <span class="id" title="var">heaps</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">procs</span> : <span class="id" title="var">Processes</span> <span class="id" title="var">domains</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">procmaps</span> : <span class="id" title="var">ProcMaps</span> <span class="id" title="var">domains</span> <span class="id" title="var">heaps</span> <span class="id" title="var">procs</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">progs</span> : <span class="id" title="var">Programs</span> <span class="id" title="var">domains</span> <span class="id" title="var">heaps</span> <span class="id" title="var">procs</span> <span class="id" title="var">procmaps</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">pmsolver</span> : <span class="id" title="var">ProcMapSolver</span> <span class="id" title="var">domains</span> <span class="id" title="var">heaps</span> <span class="id" title="var">procs</span> <span class="id" title="var">procmaps</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">assns</span> : <span class="id" title="var">Assertions</span> <span class="id" title="var">domains</span> <span class="id" title="var">heaps</span> <span class="id" title="var">hsolver</span> <span class="id" title="var">procs</span> <span class="id" title="var">procmaps</span> <span class="id" title="var">progs</span> <span class="id" title="var">pmsolver</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Export</span> <span class="id" title="var">domains</span> <span class="id" title="var">heaps</span> <span class="id" title="var">hsolver</span> <span class="id" title="var">procs</span> <span class="id" title="var">procmaps</span> <span class="id" title="var">pmsolver</span> <span class="id" title="var">progs</span> <span class="id" title="var">assns</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab182"></a><h2 class="section">Process environments</h2>
+
+<div class="paragraph"> </div>
+
+ The remaining theory assumes an <i>environment of process definitions</i>,
+    which assigns to each (defined) process its precondition. 
+<div class="paragraph"> </div>
+
+ Note that processes do not have postconditions (any longer).
+    Instead, processes have the <span class="inlinecode"><span class="id" title="var">Passert</span></span> (or <span class="inlinecode"><span class="id" title="var">HPassert</span></span>) constructors
+    to specify that a certain property should hold at that point. 
+<div class="paragraph"> </div>
+
+ So we define process environments simply as a total function
+    <span class="inlinecode"><span class="id" title="var">precondition</span></span> that maps any process to its precondition. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Parameter</span> <span class="id" title="var">precondition</span> : <span class="id" title="var">HProc</span> -&gt; <span class="id" title="var">HCond</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Moreover, the remaining theory requires that all defined processes
+    are <i>safe</i> (with respect to <span class="inlinecode"><span class="id" title="var">psafe</span></span>).  
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Parameter</span> <span class="id" title="var">precondition_safe</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">P</span> <span class="id" title="var">s</span> <span class="id" title="var">ps</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pcond_eval</span> (<span class="id" title="var">cDehybridise</span> (<span class="id" title="var">precondition</span> <span class="id" title="var">P</span>) <span class="id" title="var">s</span>) <span class="id" title="var">ps</span> = <span class="id" title="var">true</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">psafe</span> (<span class="id" title="var">pDehybridise</span> <span class="id" title="var">P</span> <span class="id" title="var">s</span>) <span class="id" title="var">ps</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab183"></a><h2 class="section">Adequacy of process maps</h2>
+
+<div class="paragraph"> </div>
+
+ The following definition captures what it means
+    for a process map entry <span class="inlinecode"><span class="id" title="var">c</span></span> to be <i>safe</i>
+    (with respect to some heap <span class="inlinecode"><span class="id" title="var">h</span></span>). 
+<div class="paragraph"> </div>
+
+ In particular this means that, if <span class="inlinecode"><span class="id" title="var">c</span></span> is occupied,
+    then the underlying process in <span class="inlinecode"><span class="id" title="var">c</span></span> is safe with respect
+    to any process store that corresponds with <span class="inlinecode"><span class="id" title="var">h</span></span>. This
+    correspondence is needed to connect process-algebraic
+    state to shared program state. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmeSafe</span> (<span class="id" title="var">h</span> : <span class="id" title="var">Heap</span>)(<span class="id" title="var">c</span> : <span class="id" title="var">ProcMapEntry</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">c</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEelem</span> <span class="id" title="var">_</span> <span class="id" title="var">P</span> <span class="id" title="var">xs</span> <span class="id" title="var">f</span> =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">ps</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span>, <span class="id" title="var">In</span> <span class="id" title="var">x</span> <span class="id" title="var">xs</span> -&gt; <span class="id" title="var">h</span> (<span class="id" title="var">f</span> <span class="id" title="var">x</span>) = <span class="id" title="var">Some</span> (<span class="id" title="var">ps</span> <span class="id" title="var">x</span>)) -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">psafe</span> <span class="id" title="var">P</span> <span class="id" title="var">ps</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEfree</span> =&gt; <span class="id" title="var">True</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEinvalid</span> =&gt; <span class="id" title="var">False</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Safety of process map entries is preserved by bisimilarity. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeSafe_bisim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">h</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeBisim</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeSafe</span> <span class="id" title="var">h</span> <span class="id" title="var">c1</span> -&gt; <span class="id" title="var">pmeSafe</span> <span class="id" title="var">h</span> <span class="id" title="var">c2</span>.<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmeSafe</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">pmeBisim</span> ==&gt; <span class="id" title="var">iff</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">pmeSafe_bisim_mor</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Free entries are trivially safe. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeSafe_iden</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">h</span>, <span class="id" title="var">pmeSafe</span> <span class="id" title="var">h</span> <span class="id" title="var">PEfree</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Safety of process map entries <span class="inlinecode"><span class="id" title="var">c</span></span> is stable under replacing
+    heaps that agree on all locations covered by <span class="inlinecode"><span class="id" title="var">c</span></span>. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeSafe_heap_acc</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">h1</span> <span class="id" title="var">h2</span> <span class="id" title="var">c</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">l</span>, <span class="id" title="var">In</span> <span class="id" title="var">l</span> (<span class="id" title="var">pmeProj</span> <span class="id" title="var">c</span>) -&gt; <span class="id" title="var">h1</span> <span class="id" title="var">l</span> = <span class="id" title="var">h2</span> <span class="id" title="var">l</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeSafe</span> <span class="id" title="var">h1</span> <span class="id" title="var">c</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeSafe</span> <span class="id" title="var">h2</span> <span class="id" title="var">c</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Safety of process map entries is stable
+    under extending (snapshot) heaps. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeSafe_subheap</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">h1</span> <span class="id" title="var">h2</span> <span class="id" title="var">c</span>,<br/>
+&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">l</span> <span class="id" title="var">v</span>, <span class="id" title="var">h2</span> <span class="id" title="var">l</span> = <span class="id" title="var">Some</span> <span class="id" title="var">v</span> -&gt; <span class="id" title="var">h1</span> <span class="id" title="var">l</span> = <span class="id" title="var">Some</span> <span class="id" title="var">v</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeSafe</span> <span class="id" title="var">h1</span> <span class="id" title="var">c</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeSafe</span> <span class="id" title="var">h2</span> <span class="id" title="var">c</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeSafe_weaken_snapshot_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span> <span class="id" title="var">c</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">phDisj</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeSafe</span> (<span class="id" title="var">phSnapshot</span> (<span class="id" title="var">phUnion</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span>)) <span class="id" title="var">c</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeSafe</span> (<span class="id" title="var">phSnapshot</span> <span class="id" title="var">ph1</span>) <span class="id" title="var">c</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeSafe_weaken_snapshot_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span> <span class="id" title="var">c</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">phDisj</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeSafe</span> (<span class="id" title="var">phSnapshot</span> (<span class="id" title="var">phUnion</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span>)) <span class="id" title="var">c</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeSafe</span> (<span class="id" title="var">phSnapshot</span> <span class="id" title="var">ph2</span>) <span class="id" title="var">c</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Removing entry information does not invalidate safety. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeSafe_weaken_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">h</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeSafe</span> <span class="id" title="var">h</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeSafe</span> <span class="id" title="var">h</span> <span class="id" title="var">c1</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeSafe_weaken_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">h</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeSafe</span> <span class="id" title="var">h</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeSafe</span> <span class="id" title="var">h</span> <span class="id" title="var">c2</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Any process map is defined to be <i>safe</i> (with respect to some heap)
+    if all its entries are safe with respect to <span class="inlinecode"><span class="id" title="var">pmeSafe</span></span>. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmSafe</span> (<span class="id" title="var">h</span> : <span class="id" title="var">Heap</span>)(<span class="id" title="var">pm</span> : <span class="id" title="var">ProcMap</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pid</span>, <span class="id" title="var">pmeSafe</span> <span class="id" title="var">h</span> (<span class="id" title="var">pm</span> <span class="id" title="var">pid</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The identity process map is trivially safe. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmSafe_iden</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">h</span>, <span class="id" title="var">pmSafe</span> <span class="id" title="var">h</span> <span class="id" title="var">pmIden</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Bisimilarity preserves safety. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmSafe_bisim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">h</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmBisim</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmSafe</span> <span class="id" title="var">h</span> <span class="id" title="var">pm1</span> -&gt; <span class="id" title="var">pmSafe</span> <span class="id" title="var">h</span> <span class="id" title="var">pm2</span>.<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmSafe</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">pmBisim</span> ==&gt; <span class="id" title="var">iff</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">pmSafe_bisim_mor</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Process map safety is stable under extensions
+    of the (snapshot) heap. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmSafe_subheap</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">h1</span> <span class="id" title="var">h2</span> <span class="id" title="var">pm</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">l</span> <span class="id" title="var">v</span>, <span class="id" title="var">h2</span> <span class="id" title="var">l</span> = <span class="id" title="var">Some</span> <span class="id" title="var">v</span> -&gt; <span class="id" title="var">h1</span> <span class="id" title="var">l</span> = <span class="id" title="var">Some</span> <span class="id" title="var">v</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> <span class="id" title="var">h1</span> <span class="id" title="var">pm</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> <span class="id" title="var">h2</span> <span class="id" title="var">pm</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmSafe_weaken_snapshot_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span> <span class="id" title="var">pm</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">phDisj</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> (<span class="id" title="var">phSnapshot</span> (<span class="id" title="var">phUnion</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span>)) <span class="id" title="var">pm</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> (<span class="id" title="var">phSnapshot</span> <span class="id" title="var">ph1</span>) <span class="id" title="var">pm</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmSafe_weaken_snapshot_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span> <span class="id" title="var">pm</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">phDisj</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> (<span class="id" title="var">phSnapshot</span> (<span class="id" title="var">phUnion</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span>)) <span class="id" title="var">pm</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> (<span class="id" title="var">phSnapshot</span> <span class="id" title="var">ph2</span>) <span class="id" title="var">pm</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Removing process map information does not invalidate safety. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmSafe_weaken_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">h</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> <span class="id" title="var">h</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> <span class="id" title="var">h</span> <span class="id" title="var">pm1</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmSafe_weaken_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">h</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> <span class="id" title="var">h</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> <span class="id" title="var">h</span> <span class="id" title="var">pm2</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab184"></a><h2 class="section">Well-structured process maps</h2>
+
+<div class="paragraph"> </div>
+
+ A process map <span class="inlinecode"><span class="id" title="var">pm</span></span> is defined to be <i>well-structured</i>
+    if every heap location <span class="inlinecode"><span class="id" title="var">l</span></span> is accessed by at most one entry of <span class="inlinecode"><span class="id" title="var">pm</span></span>.
+    This definition therefore implies that all the entries of <span class="inlinecode"><span class="id" title="var">pm</span></span>
+    access different heap locations (i.e., disjoint parts of the heap). 
+<div class="paragraph"> </div>
+
+ This definition is important in the soundness argument,
+    since every heap location can be subject to at most one
+    "active process", and we need to make this fact explicit,
+    which we do via <span class="inlinecode"><span class="id" title="var">pmWs</span></span>. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmWs</span> (<span class="id" title="var">pm</span> : <span class="id" title="var">ProcMap</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">p1</span> <span class="id" title="var">p2</span> <span class="id" title="var">l</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">In</span> <span class="id" title="var">l</span> (<span class="id" title="var">pmeProj</span> (<span class="id" title="var">pm</span> <span class="id" title="var">p1</span>)) -&gt; <span class="id" title="var">In</span> <span class="id" title="var">l</span> (<span class="id" title="var">pmeProj</span> (<span class="id" title="var">pm</span> <span class="id" title="var">p2</span>)) -&gt; <span class="id" title="var">p1</span> = <span class="id" title="var">p2</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Bisimilarity preserves well-structuredness of process maps. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmWs_bisim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmBisim</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmWs</span> <span class="id" title="var">pm1</span> -&gt; <span class="id" title="var">pmWs</span> <span class="id" title="var">pm2</span>.<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmWs</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmBisim</span> ==&gt; <span class="id" title="var">iff</span> <span class="id" title="keyword">as</span> <span class="id" title="var">pmWs_mor</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The identity process map is trivially well-structured. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmWs_iden</span> : <span class="id" title="var">pmWs</span> <span class="id" title="var">pmIden</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Process map agreement preserves well-structuredness. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmWs_agree</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmAgree</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmWs</span> <span class="id" title="var">pm1</span> -&gt; <span class="id" title="var">pmWs</span> <span class="id" title="var">pm2</span>.<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmWs</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmAgree</span> ==&gt; <span class="id" title="var">iff</span> <span class="id" title="keyword">as</span> <span class="id" title="var">pmWs_agree_mor</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Below are several other useful properties
+    of well-structuredness. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmWs_update</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm</span> <span class="id" title="var">p</span> <span class="id" title="var">c</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">p'</span> <span class="id" title="var">l</span>, <span class="id" title="var">p</span> &lt;&gt; <span class="id" title="var">p'</span> -&gt; <span class="id" title="var">In</span> <span class="id" title="var">l</span> (<span class="id" title="var">pmeProj</span> <span class="id" title="var">c</span>) -&gt; ~ <span class="id" title="var">In</span> <span class="id" title="var">l</span> (<span class="id" title="var">pmeProj</span> (<span class="id" title="var">pm</span> <span class="id" title="var">p'</span>))) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmWs</span> <span class="id" title="var">pm</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmWs</span> (<span class="id" title="var">pmUpdate</span> <span class="id" title="var">pm</span> <span class="id" title="var">p</span> <span class="id" title="var">c</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab185"></a><h2 class="section">Adequacy</h2>
+
+<div class="paragraph"> </div>
+
+ The auxiliary predicate <span class="inlinecode"><span class="id" title="var">invariant_sat</span></span> determines
+    whether a resource invariant <span class="inlinecode"><span class="id" title="var">J</span></span> is satisfied by the given model
+    in the context of the given program <span class="inlinecode"><span class="id" title="var">C</span></span>. If the program is locked,
+    we allow the resource invariant to be arbitrary
+    (as in the proof system the resource invariant then becomes <span class="inlinecode"><span class="id" title="var">Atrue</span></span>),
+    but otherwise the model should hold with respect to <span class="inlinecode"><span class="id" title="var">J</span></span>. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">invariant_sat</span> (<span class="id" title="var">ph</span> : <span class="id" title="var">PermHeap</span>)(<span class="id" title="var">pm</span> : <span class="id" title="var">ProcMap</span>)(<span class="id" title="var">s</span> <span class="id" title="var">g</span> : <span class="id" title="var">Store</span>)(<span class="id" title="var">C</span> : <span class="id" title="var">GhostCmd</span>)(<span class="id" title="var">J</span> : <span class="id" title="var">Assn</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">cmd_locked</span> <span class="id" title="var">C</span> -&gt; <span class="id" title="var">sat</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Fixpoint</span> <span class="id" title="var">safe</span> (<span class="id" title="var">n</span> : <span class="id" title="var">nat</span>)(<span class="id" title="var">basic</span> : <span class="id" title="keyword">Prop</span>)(<span class="id" title="var">C</span> : <span class="id" title="var">GhostCmd</span>)(<span class="id" title="var">ph</span> : <span class="id" title="var">PermHeap</span>)(<span class="id" title="var">pm</span> : <span class="id" title="var">ProcMap</span>)(<span class="id" title="var">s</span> <span class="id" title="var">g</span> : <span class="id" title="var">Store</span>)(<span class="id" title="var">J</span> <span class="id" title="var">A</span> : <span class="id" title="var">Assn</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">n</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">O</span> =&gt; <span class="id" title="var">True</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">S</span> <span class="id" title="var">m</span> =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">C</span> = <span class="id" title="var">Cskip</span> -&gt; <span class="id" title="var">sat</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">A</span>) /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">phF</span> <span class="id" title="var">pmF</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">phDisj</span> <span class="id" title="var">ph</span> <span class="id" title="var">phF</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm</span> <span class="id" title="var">pmF</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">h</span> := <span class="id" title="var">phConcr</span> (<span class="id" title="var">phUnion</span> <span class="id" title="var">ph</span> <span class="id" title="var">phF</span>) <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">pm'</span> := <span class="id" title="var">pmUnion</span> <span class="id" title="var">pm</span> <span class="id" title="var">pmF</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">hFinite</span> <span class="id" title="var">h</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmFinite</span> <span class="id" title="var">pm'</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;~ <span class="id" title="var">gfault</span> <span class="id" title="var">h</span> <span class="id" title="var">pm'</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">C</span>) /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">l</span>, <span class="id" title="var">cmd_acc</span> <span class="id" title="var">C</span> <span class="id" title="var">s</span> <span class="id" title="var">l</span> -&gt; <span class="id" title="var">phcLt</span> <span class="id" title="var">PHCfree</span> (<span class="id" title="var">ph</span> <span class="id" title="var">l</span>)) /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">l</span>, <span class="id" title="var">cmd_writes</span> <span class="id" title="var">C</span> <span class="id" title="var">s</span> <span class="id" title="var">l</span> -&gt; <span class="id" title="var">phcEntire</span> (<span class="id" title="var">ph</span> <span class="id" title="var">l</span>)) /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">phJ</span> <span class="id" title="var">phF</span> <span class="id" title="var">pmJ</span> <span class="id" title="var">pmF</span> <span class="id" title="var">pmC</span> <span class="id" title="var">h'</span> <span class="id" title="var">s'</span> <span class="id" title="var">C'</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">phDisj</span> <span class="id" title="var">ph</span> <span class="id" title="var">phJ</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">phDisj</span> (<span class="id" title="var">phUnion</span> <span class="id" title="var">ph</span> <span class="id" title="var">phJ</span>) <span class="id" title="var">phF</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm</span> <span class="id" title="var">pmJ</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm</span> <span class="id" title="var">pmJ</span>) <span class="id" title="var">pmF</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmBisim</span> (<span class="id" title="var">pmUnion</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm</span> <span class="id" title="var">pmJ</span>) <span class="id" title="var">pmF</span>) <span class="id" title="var">pmC</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmFinite</span> <span class="id" title="var">pmC</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmWs</span> <span class="id" title="var">pmC</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">invariant_sat</span> <span class="id" title="var">phJ</span> <span class="id" title="var">pmJ</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">C</span> <span class="id" title="var">J</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">h</span> := <span class="id" title="var">phConcr</span> (<span class="id" title="var">phUnion</span> (<span class="id" title="var">phUnion</span> <span class="id" title="var">ph</span> <span class="id" title="var">phJ</span>) <span class="id" title="var">phF</span>) <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">hs</span> := <span class="id" title="var">phSnapshot</span> (<span class="id" title="var">phUnion</span> (<span class="id" title="var">phUnion</span> <span class="id" title="var">ph</span> <span class="id" title="var">phJ</span>) <span class="id" title="var">phF</span>) <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">hFinite</span> <span class="id" title="var">h</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmCovers</span> <span class="id" title="var">pmC</span> <span class="id" title="var">hs</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> <span class="id" title="var">hs</span> <span class="id" title="var">pmC</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">step</span> <span class="id" title="var">h</span> <span class="id" title="var">s</span> (<span class="id" title="var">plain</span> <span class="id" title="var">C</span>) <span class="id" title="var">h'</span> <span class="id" title="var">s'</span> <span class="id" title="var">C'</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">ph'</span> <span class="id" title="var">phJ'</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">phDisj</span> <span class="id" title="var">ph'</span> <span class="id" title="var">phJ'</span> /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">phDisj</span> (<span class="id" title="var">phUnion</span> <span class="id" title="var">ph'</span> <span class="id" title="var">phJ'</span>) <span class="id" title="var">phF</span> /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">phConcr</span> (<span class="id" title="var">phUnion</span> (<span class="id" title="var">phUnion</span> <span class="id" title="var">ph'</span> <span class="id" title="var">phJ'</span>) <span class="id" title="var">phF</span>) = <span class="id" title="var">h'</span> /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">hFinite</span> <span class="id" title="var">h'</span> /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">basic</span> -&gt; <span class="id" title="var">phJ</span> = <span class="id" title="var">phJ'</span> /\ <span class="id" title="var">phSnapshot</span> <span class="id" title="var">ph</span> = <span class="id" title="var">phSnapshot</span> <span class="id" title="var">ph'</span>) /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">pm'</span> <span class="id" title="var">pmJ'</span> <span class="id" title="var">pmC'</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm'</span> <span class="id" title="var">pmJ'</span> /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm'</span> <span class="id" title="var">pmJ'</span>) <span class="id" title="var">pmF</span> /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmBisim</span> (<span class="id" title="var">pmUnion</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm'</span> <span class="id" title="var">pmJ'</span>) <span class="id" title="var">pmF</span>) <span class="id" title="var">pmC'</span> /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmFinite</span> <span class="id" title="var">pmC'</span> /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmWs</span> <span class="id" title="var">pmC'</span> /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">basic</span> -&gt; <span class="id" title="var">pmBisim</span> <span class="id" title="var">pm</span> <span class="id" title="var">pm'</span> /\ <span class="id" title="var">pmBisim</span> <span class="id" title="var">pmJ</span> <span class="id" title="var">pmJ'</span>) /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">hs'</span> := <span class="id" title="var">phSnapshot</span> (<span class="id" title="var">phUnion</span> (<span class="id" title="var">phUnion</span> <span class="id" title="var">ph'</span> <span class="id" title="var">phJ'</span>) <span class="id" title="var">phF</span>) <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmCovers</span> <span class="id" title="var">pmC'</span> <span class="id" title="var">hs'</span> /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> <span class="id" title="var">hs'</span> <span class="id" title="var">pmC'</span> /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">g'</span> <span class="id" title="var">C''</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">plain</span> <span class="id" title="var">C''</span> = <span class="id" title="var">C'</span> /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">gstep</span> <span class="id" title="var">h</span> <span class="id" title="var">pmC</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">C</span> <span class="id" title="var">h'</span> <span class="id" title="var">pmC'</span> <span class="id" title="var">s'</span> <span class="id" title="var">g'</span> <span class="id" title="var">C''</span> /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">invariant_sat</span> <span class="id" title="var">phJ'</span> <span class="id" title="var">pmJ'</span> <span class="id" title="var">s'</span> <span class="id" title="var">g'</span> <span class="id" title="var">C''</span> <span class="id" title="var">J</span> /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">m</span> <span class="id" title="var">basic</span> <span class="id" title="var">C''</span> <span class="id" title="var">ph'</span> <span class="id" title="var">pm'</span> <span class="id" title="var">s'</span> <span class="id" title="var">g'</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>)<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Safety is stable under replacing process maps by bisimilar ones. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">safe_pmBisim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmBisim</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm1</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm2</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Safety is stable under replacing resource invariants
+    by equivalent ones. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">safe_aEquiv_inv</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">R1</span> <span class="id" title="var">R2</span> <span class="id" title="var">A</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">aEquiv</span> <span class="id" title="var">R1</span> <span class="id" title="var">R2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">R1</span> <span class="id" title="var">A</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">R2</span> <span class="id" title="var">A</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Safety is stable under replacing postconditions by equivalent ones. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">safe_aEquiv_post</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">R</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">phValid</span> <span class="id" title="var">ph</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmValid</span> <span class="id" title="var">pm</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">aEquiv</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">R</span> <span class="id" title="var">A1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">R</span> <span class="id" title="var">A2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">safe</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">pmBisim</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">aEquiv</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">iff</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">safe_bisim_mor</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Adequacy is monotonic in the number of computation steps. 
+<div class="paragraph"> </div>
+
+ That is, if any configuration is safe for <span class="inlinecode"><span class="id" title="var">n</span></span> steps, it
+    must also be safe for less than <span class="inlinecode"><span class="id" title="var">n</span></span> steps. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">nat_scope</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">safe_mono</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">m</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">m</span> &lt;= <span class="id" title="var">n</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">m</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Close</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">nat_scope</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The <span class="inlinecode"><span class="id" title="var">Cskip</span></span> program being safe in a certain state
+    means that the postcondition holds in that state. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">safe_skip</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> (<span class="id" title="var">S</span> <span class="id" title="var">n</span>) <span class="id" title="var">basic</span> <span class="id" title="var">Cskip</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">sat</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">A</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">safe_done</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">sat</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">A</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">Cskip</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Any (ghost) store can be replaced by one that agrees on
+    the values of all free variables in the program, resource invariant,
+    and the postcondition. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">safe_agree</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s1</span> <span class="id" title="var">s2</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">sAgree</span> (<span class="id" title="var">assn_fv</span> <span class="id" title="var">A</span>) <span class="id" title="var">s1</span> <span class="id" title="var">s2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">sAgree</span> (<span class="id" title="var">assn_fv</span> <span class="id" title="var">J</span>) <span class="id" title="var">s1</span> <span class="id" title="var">s2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">sAgree</span> (<span class="id" title="var">cmd_fv</span> <span class="id" title="var">C</span>) <span class="id" title="var">s1</span> <span class="id" title="var">s2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s1</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s2</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>.<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">safe_agree_ghost</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g1</span> <span class="id" title="var">g2</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">sAgree</span> (<span class="id" title="var">assn_fv</span> <span class="id" title="var">A</span>) <span class="id" title="var">g1</span> <span class="id" title="var">g2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">sAgree</span> (<span class="id" title="var">assn_fv</span> <span class="id" title="var">J</span>) <span class="id" title="var">g1</span> <span class="id" title="var">g2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">sAgree</span> (<span class="id" title="var">cmd_fv</span> <span class="id" title="var">C</span>) <span class="id" title="var">g1</span> <span class="id" title="var">g2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g1</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g2</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>.<br/>
+</div>
+
+<div class="doc">
+Disjuncts in postconditions can always be introduced. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">safe_disj_weaken</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">R</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">R</span> <span class="id" title="var">A1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">R</span> (<span class="id" title="var">Adisj</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab186"></a><h2 class="section">Soundness of the proof rules</h2>
+
+<div class="paragraph"> </div>
+
+ The meaning of Hoare triples is given by 
+    the following definition. 
+<div class="paragraph"> </div>
+
+ Intuitively <span class="inlinecode"><span class="id" title="var">csl</span></span> <span class="inlinecode"><span class="id" title="var">b</span></span> <span class="inlinecode"><span class="id" title="var">J</span></span> <span class="inlinecode"><span class="id" title="var">A</span></span> <span class="inlinecode"><span class="id" title="var">C</span></span> <span class="inlinecode"><span class="id" title="var">A'</span></span> holds if <span class="inlinecode"><span class="id" title="var">C</span></span> is a user program,
+    and moreover that <span class="inlinecode"><span class="id" title="var">C</span></span> is safe for any number of reduction steps. 
+<div class="paragraph"> </div>
+
+ The extra <span class="inlinecode"><span class="id" title="var">basic</span></span> parameter is purely for technical reasons.
+    Recall that basic programs exclude certain language features
+    such as specification-only commands. It later helps if we explicitly
+    administer whether a <span class="inlinecode"><span class="id" title="var">csl</span></span> judgement is used in the context of a
+    basic program. The extra <span class="inlinecode"><span class="id" title="var">basic</span></span> parameter is used for just that. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">csl</span> (<span class="id" title="var">basic</span> : <span class="id" title="keyword">Prop</span>)(<span class="id" title="var">J</span> : <span class="id" title="var">Assn</span>)(<span class="id" title="var">A1</span> : <span class="id" title="var">Assn</span>)(<span class="id" title="var">C</span> : <span class="id" title="var">GhostCmd</span>)(<span class="id" title="var">A2</span> : <span class="id" title="var">Assn</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="var">cmd_user</span> <span class="id" title="var">C</span> /\<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">phValid</span> <span class="id" title="var">ph</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmValid</span> <span class="id" title="var">pm</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> (<span class="id" title="var">phSnapshot</span> <span class="id" title="var">ph</span>) <span class="id" title="var">pm</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cmd_wf</span> <span class="id" title="var">C</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">sat</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">A1</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A2</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Any assertion (pre- or postcondition, or resource invariant)
+    can always be replaced by an equivalent one. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">csl</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">aEquiv</span> ==&gt; <span class="id" title="var">aEquiv</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">aEquiv</span> ==&gt; <span class="id" title="var">iff</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">csl_aEquiv_mor</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Any program judgement with an unsatisfiable precondition
+    trivially holds. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">csl_trivial</span>  :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">C</span> <span class="id" title="var">A</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">cmd_user</span> <span class="id" title="var">C</span> -&gt; <span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">Afalse</span> <span class="id" title="var">C</span> <span class="id" title="var">A</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab187"></a><h3 class="section">Skip rule</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_skip</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span> <span class="id" title="var">Cskip</span> <span class="id" title="var">A</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab188"></a><h3 class="section">Sequential composition</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">nat_scope</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">safe_seq</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C1</span> <span class="id" title="var">C2</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">phValid</span> <span class="id" title="var">ph</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmValid</span> <span class="id" title="var">pm</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> (<span class="id" title="var">phSnapshot</span> <span class="id" title="var">ph</span>) <span class="id" title="var">pm</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C1</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> -&gt;<br/>
+&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">m</span> <span class="id" title="var">ph'</span> <span class="id" title="var">pm'</span> <span class="id" title="var">s'</span> <span class="id" title="var">g'</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">m</span> &lt;= <span class="id" title="var">n</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">phValid</span> <span class="id" title="var">ph'</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmValid</span> <span class="id" title="var">pm'</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> (<span class="id" title="var">phSnapshot</span> <span class="id" title="var">ph'</span>) <span class="id" title="var">pm'</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">sat</span> <span class="id" title="var">ph'</span> <span class="id" title="var">pm'</span> <span class="id" title="var">s'</span> <span class="id" title="var">g'</span> <span class="id" title="var">A1</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">m</span> <span class="id" title="var">basic</span> <span class="id" title="var">C2</span> <span class="id" title="var">ph'</span> <span class="id" title="var">pm'</span> <span class="id" title="var">s'</span> <span class="id" title="var">g'</span> <span class="id" title="var">J</span> <span class="id" title="var">A2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> (<span class="id" title="var">Cseq</span> <span class="id" title="var">C1</span> <span class="id" title="var">C2</span>) <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Close</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">nat_scope</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_seq</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span> <span class="id" title="var">A3</span> <span class="id" title="var">C1</span> <span class="id" title="var">C2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">C1</span> <span class="id" title="var">A2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A2</span> <span class="id" title="var">C2</span> <span class="id" title="var">A3</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> (<span class="id" title="var">Cseq</span> <span class="id" title="var">C1</span> <span class="id" title="var">C2</span>) <span class="id" title="var">A3</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab189"></a><h3 class="section">If-then-else rule</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">safe_ite</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span> <span class="id" title="var">B</span> <span class="id" title="var">C1</span> <span class="id" title="var">C2</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">sat</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">A1</span> -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">sat</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">A1</span> (<span class="id" title="var">Aplain</span> <span class="id" title="var">B</span>)) -&gt; <span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C1</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A2</span>) -&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">sat</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">A1</span> (<span class="id" title="var">Aplain</span> (<span class="id" title="var">Bnot</span> <span class="id" title="var">B</span>))) -&gt; <span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C2</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> (<span class="id" title="var">Cite</span> <span class="id" title="var">B</span> <span class="id" title="var">C1</span> <span class="id" title="var">C2</span>) <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_ite</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span> <span class="id" title="var">B</span> <span class="id" title="var">C1</span> <span class="id" title="var">C2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">A1</span> (<span class="id" title="var">Aplain</span> <span class="id" title="var">B</span>)) <span class="id" title="var">C1</span> <span class="id" title="var">A2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">A1</span> (<span class="id" title="var">Aplain</span> (<span class="id" title="var">Bnot</span> <span class="id" title="var">B</span>))) <span class="id" title="var">C2</span> <span class="id" title="var">A2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> (<span class="id" title="var">Cite</span> <span class="id" title="var">B</span> <span class="id" title="var">C1</span> <span class="id" title="var">C2</span>) <span class="id" title="var">A2</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab190"></a><h3 class="section">While rule</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">safe_while</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">B</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">A</span> (<span class="id" title="var">Aplain</span> <span class="id" title="var">B</span>)) <span class="id" title="var">C</span> <span class="id" title="var">A</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">sat</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">A</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">cmd_wf</span> <span class="id" title="var">C</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> (<span class="id" title="var">Cwhile</span> <span class="id" title="var">B</span> <span class="id" title="var">C</span>) <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">A</span> (<span class="id" title="var">Aplain</span> (<span class="id" title="var">Bnot</span> <span class="id" title="var">B</span>))).<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_while</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span> <span class="id" title="var">B</span> <span class="id" title="var">C</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">A</span> (<span class="id" title="var">Aplain</span> <span class="id" title="var">B</span>)) <span class="id" title="var">C</span> <span class="id" title="var">A</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span> (<span class="id" title="var">Cwhile</span> <span class="id" title="var">B</span> <span class="id" title="var">C</span>) (<span class="id" title="var">Astar</span> <span class="id" title="var">A</span> (<span class="id" title="var">Aplain</span> (<span class="id" title="var">Bnot</span> <span class="id" title="var">B</span>))).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab191"></a><h3 class="section">Assign rule</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">safe_assign</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span> <span class="id" title="var">x</span> <span class="id" title="var">E</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span>,<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">assn_fv</span> <span class="id" title="var">J</span> <span class="id" title="var">x</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">sat</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> (<span class="id" title="var">assn_subst</span> <span class="id" title="var">x</span> <span class="id" title="var">E</span> <span class="id" title="var">A</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> (<span class="id" title="var">Cass</span> <span class="id" title="var">x</span> <span class="id" title="var">E</span>) <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_assign</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span> <span class="id" title="var">x</span> <span class="id" title="var">E</span>,<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">assn_fv</span> <span class="id" title="var">J</span> <span class="id" title="var">x</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> (<span class="id" title="var">assn_subst</span> <span class="id" title="var">x</span> <span class="id" title="var">E</span> <span class="id" title="var">A</span>) (<span class="id" title="var">Cass</span> <span class="id" title="var">x</span> <span class="id" title="var">E</span>) <span class="id" title="var">A</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab192"></a><h3 class="section">Rule of consequence</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">safe_conseq</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">phValid</span> <span class="id" title="var">ph</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmValid</span> <span class="id" title="var">pm</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> (<span class="id" title="var">phSnapshot</span> <span class="id" title="var">ph</span>) <span class="id" title="var">pm</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">aEntails</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A2</span>.<br/>
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_conseq</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span> <span class="id" title="var">A1'</span> <span class="id" title="var">A2'</span> <span class="id" title="var">C</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">aEntails</span> <span class="id" title="var">A1</span> <span class="id" title="var">A1'</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">aEntails</span> <span class="id" title="var">A2'</span> <span class="id" title="var">A2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1'</span> <span class="id" title="var">C</span> <span class="id" title="var">A2'</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">C</span> <span class="id" title="var">A2</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab193"></a><h3 class="section">Disjunction rule</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_disj</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span> <span class="id" title="var">A1'</span> <span class="id" title="var">A2'</span> <span class="id" title="var">C</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">C</span> <span class="id" title="var">A1'</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A2</span> <span class="id" title="var">C</span> <span class="id" title="var">A2'</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> (<span class="id" title="var">Adisj</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span>) <span class="id" title="var">C</span> (<span class="id" title="var">Adisj</span> <span class="id" title="var">A1'</span> <span class="id" title="var">A2'</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Corollary</span> <span class="id" title="var">rule_disj_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span> <span class="id" title="var">A3</span> <span class="id" title="var">C</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A2</span> <span class="id" title="var">C</span> <span class="id" title="var">A1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A3</span> <span class="id" title="var">C</span> <span class="id" title="var">A1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> (<span class="id" title="var">Adisj</span> <span class="id" title="var">A2</span> <span class="id" title="var">A3</span>) <span class="id" title="var">C</span> <span class="id" title="var">A1</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Corollary</span> <span class="id" title="var">rule_disj_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span> <span class="id" title="var">A3</span> <span class="id" title="var">C</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">C</span> <span class="id" title="var">A2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">C</span> <span class="id" title="var">A3</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">C</span> (<span class="id" title="var">Adisj</span> <span class="id" title="var">A2</span> <span class="id" title="var">A3</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">rule_disj_weaken</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span> <span class="id" title="var">A3</span> <span class="id" title="var">C</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">C</span> <span class="id" title="var">A2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">C</span> (<span class="id" title="var">Adisj</span> <span class="id" title="var">A2</span> <span class="id" title="var">A3</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab194"></a><h3 class="section">Frame rule</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">safe_frame</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">phDisj</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> (<span class="id" title="var">phSnapshot</span> <span class="id" title="var">ph1</span>) <span class="id" title="var">pm1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">assn_fv</span> <span class="id" title="var">A2</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">sat</span> <span class="id" title="var">ph2</span> <span class="id" title="var">pm2</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">A2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">ph1</span> <span class="id" title="var">pm1</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> (<span class="id" title="var">phUnion</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span>) (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span>).<br/>
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_frame</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span> <span class="id" title="var">A3</span> <span class="id" title="var">C</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">assn_fv</span> <span class="id" title="var">A3</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">C</span> <span class="id" title="var">A2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">A1</span> <span class="id" title="var">A3</span>) <span class="id" title="var">C</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">A2</span> <span class="id" title="var">A3</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab195"></a><h3 class="section">Heap reading</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">rule_lookup_std</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">x</span> <span class="id" title="var">E1</span> <span class="id" title="var">q</span> <span class="id" title="var">E2</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>,<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">In</span> <span class="id" title="var">x</span> (<span class="id" title="var">expr_fv</span> <span class="id" title="var">E1</span>) -&gt;<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">In</span> <span class="id" title="var">x</span> (<span class="id" title="var">expr_fv</span> <span class="id" title="var">E2</span>) -&gt;<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">assn_fv</span> <span class="id" title="var">J</span> <span class="id" title="var">x</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">assn_subst</span> <span class="id" title="var">x</span> <span class="id" title="var">E2</span> <span class="id" title="var">A</span>) (<span class="id" title="var">Apointsto</span> <span class="id" title="var">PTTstd</span> <span class="id" title="var">q</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>)) (<span class="id" title="var">Cread</span> <span class="id" title="var">x</span> <span class="id" title="var">E1</span>) (<span class="id" title="var">Astar</span> <span class="id" title="var">A</span> (<span class="id" title="var">Apointsto</span> <span class="id" title="var">PTTstd</span> <span class="id" title="var">q</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">rule_lookup_proc</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">x</span> <span class="id" title="var">E1</span> <span class="id" title="var">q</span> <span class="id" title="var">E2</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>,<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">In</span> <span class="id" title="var">x</span> (<span class="id" title="var">expr_fv</span> <span class="id" title="var">E1</span>) -&gt;<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">In</span> <span class="id" title="var">x</span> (<span class="id" title="var">expr_fv</span> <span class="id" title="var">E2</span>) -&gt;<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">assn_fv</span> <span class="id" title="var">J</span> <span class="id" title="var">x</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">assn_subst</span> <span class="id" title="var">x</span> <span class="id" title="var">E2</span> <span class="id" title="var">A</span>) (<span class="id" title="var">Apointsto</span> <span class="id" title="var">PTTproc</span> <span class="id" title="var">q</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>)) (<span class="id" title="var">Cread</span> <span class="id" title="var">x</span> <span class="id" title="var">E1</span>) (<span class="id" title="var">Astar</span> <span class="id" title="var">A</span> (<span class="id" title="var">Apointsto</span> <span class="id" title="var">PTTproc</span> <span class="id" title="var">q</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">rule_lookup_act</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">x</span> <span class="id" title="var">E1</span> <span class="id" title="var">q</span> <span class="id" title="var">E2</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>,<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">In</span> <span class="id" title="var">x</span> (<span class="id" title="var">expr_fv</span> <span class="id" title="var">E1</span>) -&gt;<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">In</span> <span class="id" title="var">x</span> (<span class="id" title="var">expr_fv</span> <span class="id" title="var">E2</span>) -&gt;<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">assn_fv</span> <span class="id" title="var">J</span> <span class="id" title="var">x</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">assn_subst</span> <span class="id" title="var">x</span> <span class="id" title="var">E2</span> <span class="id" title="var">A</span>) (<span class="id" title="var">Apointsto</span> <span class="id" title="var">PTTact</span> <span class="id" title="var">q</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>)) (<span class="id" title="var">Cread</span> <span class="id" title="var">x</span> <span class="id" title="var">E1</span>) (<span class="id" title="var">Astar</span> <span class="id" title="var">A</span> (<span class="id" title="var">Apointsto</span> <span class="id" title="var">PTTact</span> <span class="id" title="var">q</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_lookup</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">x</span> <span class="id" title="var">E1</span> <span class="id" title="var">q</span> <span class="id" title="var">E2</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span> <span class="id" title="var">t</span>,<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">In</span> <span class="id" title="var">x</span> (<span class="id" title="var">expr_fv</span> <span class="id" title="var">E1</span>) -&gt;<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">In</span> <span class="id" title="var">x</span> (<span class="id" title="var">expr_fv</span> <span class="id" title="var">E2</span>) -&gt;<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">assn_fv</span> <span class="id" title="var">J</span> <span class="id" title="var">x</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">assn_subst</span> <span class="id" title="var">x</span> <span class="id" title="var">E2</span> <span class="id" title="var">A</span>) (<span class="id" title="var">Apointsto</span> <span class="id" title="var">t</span> <span class="id" title="var">q</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>)) (<span class="id" title="var">Cread</span> <span class="id" title="var">x</span> <span class="id" title="var">E1</span>) (<span class="id" title="var">Astar</span> <span class="id" title="var">A</span> (<span class="id" title="var">Apointsto</span> <span class="id" title="var">t</span> <span class="id" title="var">q</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>)).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab196"></a><h3 class="section">Heap writing</h3>
+
+<div class="paragraph"> </div>
+
+ Soundness of the rules for heap writing. In the paper these rules are
+    presented as a single rule (for presentational convenience), but here
+    we handle heap writing via two separate rules -- one for handling
+    points-to ownership predicates of type <span class="inlinecode"><span class="id" title="var">PTTstd</span></span>, and one for <span class="inlinecode"><span class="id" title="var">PTTact</span></span>. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_write_std</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span> <span class="id" title="var">E3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> (<span class="id" title="var">Apointsto</span> <span class="id" title="var">PTTstd</span> 1 <span class="id" title="var">E1</span> <span class="id" title="var">E3</span>) (<span class="id" title="var">Cwrite</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>) (<span class="id" title="var">Apointsto</span> <span class="id" title="var">PTTstd</span> 1 <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>).<br/>
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_write_act</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span> <span class="id" title="var">E3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> (<span class="id" title="var">Apointsto</span> <span class="id" title="var">PTTact</span> 1 <span class="id" title="var">E1</span> <span class="id" title="var">E3</span>) (<span class="id" title="var">Cwrite</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>) (<span class="id" title="var">Apointsto</span> <span class="id" title="var">PTTact</span> 1 <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>).<br/>
+</div>
+
+<div class="doc">
+<a name="lab197"></a><h3 class="section">Heap allocation</h3>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_alloc</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">x</span> <span class="id" title="var">E</span> <span class="id" title="var">J</span>,<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">In</span> <span class="id" title="var">x</span> (<span class="id" title="var">expr_fv</span> <span class="id" title="var">E</span>) -&gt;<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">assn_fv</span> <span class="id" title="var">J</span> <span class="id" title="var">x</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">Atrue</span> (<span class="id" title="var">Calloc</span> <span class="id" title="var">x</span> <span class="id" title="var">E</span>) (<span class="id" title="var">Apointsto</span> <span class="id" title="var">PTTstd</span> <span class="id" title="var">perm_full</span> (<span class="id" title="var">Evar</span> <span class="id" title="var">x</span>) <span class="id" title="var">E</span>).<br/>
+</div>
+
+<div class="doc">
+<a name="lab198"></a><h3 class="section">Heap disposal</h3>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_dispose</span>  :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span> <span class="id" title="var">J</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> (<span class="id" title="var">Apointsto</span> <span class="id" title="var">PTTstd</span> <span class="id" title="var">perm_full</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>) (<span class="id" title="var">Cdispose</span> <span class="id" title="var">E1</span>) <span class="id" title="var">Atrue</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab199"></a><h3 class="section">Parallel composition</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">safe_par</span>  :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C1</span> <span class="id" title="var">C2</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">phDisj</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> (<span class="id" title="var">phSnapshot</span> <span class="id" title="var">ph1</span>) <span class="id" title="var">pm1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> (<span class="id" title="var">phSnapshot</span> <span class="id" title="var">ph2</span>) <span class="id" title="var">pm2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">cmd_wf</span> (<span class="id" title="var">Cpar</span> <span class="id" title="var">C1</span> <span class="id" title="var">C2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">cmd_fv</span> <span class="id" title="var">C1</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">assn_fv</span> <span class="id" title="var">A1</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">assn_fv</span> <span class="id" title="var">J</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">cmd_fv</span> <span class="id" title="var">C2</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C1</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">assn_fv</span> <span class="id" title="var">A2</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C1</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">assn_fv</span> <span class="id" title="var">J</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C1</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C1</span> <span class="id" title="var">ph1</span> <span class="id" title="var">pm1</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> <span class="id" title="var">C2</span> <span class="id" title="var">ph2</span> <span class="id" title="var">pm2</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">basic</span> (<span class="id" title="var">Cpar</span> <span class="id" title="var">C1</span> <span class="id" title="var">C2</span>) (<span class="id" title="var">phUnion</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span>) (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span>).<br/>
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_par</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">C1</span> <span class="id" title="var">C2</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span> <span class="id" title="var">A1'</span> <span class="id" title="var">A2'</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">cmd_fv</span> <span class="id" title="var">C1</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">assn_fv</span> <span class="id" title="var">A1'</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">assn_fv</span> <span class="id" title="var">J</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">cmd_fv</span> <span class="id" title="var">C2</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C1</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">assn_fv</span> <span class="id" title="var">A2'</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C1</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">assn_fv</span> <span class="id" title="var">J</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C1</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">C1</span> <span class="id" title="var">A1'</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> <span class="id" title="var">A2</span> <span class="id" title="var">C2</span> <span class="id" title="var">A2'</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span>) (<span class="id" title="var">Cpar</span> <span class="id" title="var">C1</span> <span class="id" title="var">C2</span>) (<span class="id" title="var">Astar</span> <span class="id" title="var">A1'</span> <span class="id" title="var">A2'</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab200"></a><h3 class="section">Existential quantification</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_ex</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">basic</span> <span class="id" title="var">C</span> <span class="id" title="var">J</span> (<span class="id" title="var">A1</span> <span class="id" title="var">A2</span> : <span class="id" title="var">Val</span> -&gt; <span class="id" title="var">Assn</span>),<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span>, <span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> (<span class="id" title="var">A1</span> <span class="id" title="var">x</span>) <span class="id" title="var">C</span> (<span class="id" title="var">A2</span> <span class="id" title="var">x</span>)) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">basic</span> <span class="id" title="var">J</span> (<span class="id" title="var">Aex</span> <span class="id" title="var">A1</span>) <span class="id" title="var">C</span> (<span class="id" title="var">Aex</span> <span class="id" title="var">A2</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab201"></a><h3 class="section">Share rule</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">safe_share</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">C</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">phDisj</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> (<span class="id" title="var">phSnapshot</span> <span class="id" title="var">ph1</span>) <span class="id" title="var">pm1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmSafe</span> (<span class="id" title="var">phSnapshot</span> <span class="id" title="var">ph2</span>) <span class="id" title="var">pm2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">invariant_sat</span> <span class="id" title="var">ph2</span> <span class="id" title="var">pm2</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">C</span> <span class="id" title="var">A2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">False</span> <span class="id" title="var">C</span> <span class="id" title="var">ph1</span> <span class="id" title="var">pm1</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">J</span> <span class="id" title="var">A2</span>) <span class="id" title="var">A1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">False</span> <span class="id" title="var">C</span> (<span class="id" title="var">phUnion</span> <span class="id" title="var">ph1</span> <span class="id" title="var">ph2</span>) (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span>).<br/>
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_share</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">C</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span> <span class="id" title="var">A3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">False</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">J</span> <span class="id" title="var">A3</span>) <span class="id" title="var">A1</span> <span class="id" title="var">C</span> <span class="id" title="var">A2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">False</span> <span class="id" title="var">J</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">A1</span> <span class="id" title="var">A3</span>) <span class="id" title="var">C</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">A2</span> <span class="id" title="var">A3</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab202"></a><h3 class="section">Atomic rule</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">safe_atom</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">False</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">Atrue</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">A</span> <span class="id" title="var">J</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">False</span> (<span class="id" title="var">Cinatom</span> <span class="id" title="var">C</span>) <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> <span class="id" title="var">A</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_atom</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">C</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> <span class="id" title="var">A2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">False</span> <span class="id" title="var">Atrue</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">A1</span> <span class="id" title="var">J</span>) <span class="id" title="var">C</span> (<span class="id" title="var">Astar</span> <span class="id" title="var">A2</span> <span class="id" title="var">J</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">False</span> <span class="id" title="var">J</span> <span class="id" title="var">A1</span> (<span class="id" title="var">Catomic</span> <span class="id" title="var">C</span>) <span class="id" title="var">A2</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab203"></a><h3 class="section">Process init rule</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_proc_init</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">Pf</span> <span class="id" title="var">E</span> <span class="id" title="var">J</span> (<span class="id" title="var">x</span> : <span class="id" title="var">Var</span>)(<span class="id" title="var">xs</span> : <span class="id" title="var">list</span> <span class="id" title="var">ProcVar</span>)(<span class="id" title="var">f1</span> <span class="id" title="var">f2</span> : <span class="id" title="var">ProcVar</span> -&gt; <span class="id" title="var">Expr</span>),<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">HP</span> := <span class="id" title="var">Pf</span> <span class="id" title="var">E</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">b</span> := <span class="id" title="var">precondition</span> <span class="id" title="var">HP</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">B</span> := <span class="id" title="var">hcond_convert</span> <span class="id" title="var">b</span> <span class="id" title="var">f2</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">fq</span> := <span class="id" title="keyword">fun</span> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">perm_full</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">y</span>, <span class="id" title="var">In</span> <span class="id" title="var">y</span> (<span class="id" title="var">hcond_fpv</span> <span class="id" title="var">b</span>) -&gt; <span class="id" title="var">In</span> <span class="id" title="var">y</span> <span class="id" title="var">xs</span>) -&gt;<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">assn_fv</span> <span class="id" title="var">J</span> <span class="id" title="var">x</span> -&gt;<br/>
+&nbsp;&nbsp;~ (<span class="id" title="tactic">exists</span> <span class="id" title="var">y</span> : <span class="id" title="var">ProcVar</span>, <span class="id" title="var">In</span> <span class="id" title="var">y</span> <span class="id" title="var">xs</span> /\ <span class="id" title="var">In</span> <span class="id" title="var">x</span> (<span class="id" title="var">expr_fv</span> (<span class="id" title="var">f1</span> <span class="id" title="var">y</span>))) -&gt;<br/>
+&nbsp;&nbsp;~ (<span class="id" title="tactic">exists</span> <span class="id" title="var">y</span> : <span class="id" title="var">ProcVar</span>, <span class="id" title="var">In</span> <span class="id" title="var">y</span> <span class="id" title="var">xs</span> /\ <span class="id" title="var">In</span> <span class="id" title="var">x</span> (<span class="id" title="var">expr_fv</span> (<span class="id" title="var">f2</span> <span class="id" title="var">y</span>))) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">False</span> <span class="id" title="var">J</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">Astar</span> (<span class="id" title="var">Aiter</span> (<span class="id" title="var">ApointstoIter</span> <span class="id" title="var">xs</span> <span class="id" title="var">fq</span> <span class="id" title="var">f1</span> <span class="id" title="var">f2</span> <span class="id" title="var">PTTstd</span>)) (<span class="id" title="var">Aplain</span> <span class="id" title="var">B</span>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">Cproc</span> <span class="id" title="var">x</span> <span class="id" title="var">Pf</span> <span class="id" title="var">E</span> <span class="id" title="var">xs</span> <span class="id" title="var">f1</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">Astar</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">Aiter</span> (<span class="id" title="var">ApointstoIter</span> <span class="id" title="var">xs</span> <span class="id" title="var">fq</span> <span class="id" title="var">f1</span> <span class="id" title="var">f2</span> <span class="id" title="var">PTTproc</span>)) (<span class="id" title="var">Aproc</span> <span class="id" title="var">x</span> <span class="id" title="var">perm_full</span> <span class="id" title="var">HP</span> <span class="id" title="var">xs</span> <span class="id" title="var">f1</span>)) (<span class="id" title="var">Aplain</span> <span class="id" title="var">B</span>)).<br/>
+</div>
+
+<div class="doc">
+<a name="lab204"></a><h3 class="section">Process finish rule</h3>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_proc_finish</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">HP</span> <span class="id" title="var">J</span> (<span class="id" title="var">x</span> : <span class="id" title="var">Var</span>)(<span class="id" title="var">xs</span> : <span class="id" title="var">list</span> <span class="id" title="var">ProcVar</span>)(<span class="id" title="var">f1</span> <span class="id" title="var">f2</span> : <span class="id" title="var">ProcVar</span> -&gt; <span class="id" title="var">Expr</span>),<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">fq</span> := <span class="id" title="keyword">fun</span> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">perm_full</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">False</span> <span class="id" title="var">J</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">Astar</span> (<span class="id" title="var">Aiter</span> (<span class="id" title="var">ApointstoIter</span> <span class="id" title="var">xs</span> <span class="id" title="var">fq</span> <span class="id" title="var">f1</span> <span class="id" title="var">f2</span> <span class="id" title="var">PTTproc</span>)) (<span class="id" title="var">Aproc</span> <span class="id" title="var">x</span> <span class="id" title="var">perm_full</span> (<span class="id" title="var">HPalt</span> <span class="id" title="var">HP</span> <span class="id" title="var">HPepsilon</span>) <span class="id" title="var">xs</span> <span class="id" title="var">f1</span>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">Cendproc</span> <span class="id" title="var">x</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">Aiter</span> (<span class="id" title="var">ApointstoIter</span> <span class="id" title="var">xs</span> <span class="id" title="var">fq</span> <span class="id" title="var">f1</span> <span class="id" title="var">f2</span> <span class="id" title="var">PTTstd</span>)).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab205"></a><h3 class="section">Action rule</h3>
+
+<div class="paragraph"> </div>
+
+ The soundness proof of the action rule requires some
+    extra auxiliary definitions and properties, in particular
+    that the metadata that is stored in <span class="inlinecode"><span class="id" title="var">Cinact</span></span> commands
+    actually makes sense with respect to the rest of the
+    state that is maintained. The central definition that helps
+    with is is <span class="inlinecode"><span class="id" title="var">metadata_agree</span></span>. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">phcConcr_snapshot_none</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pme</span>, <span class="id" title="var">phcConcr</span> <span class="id" title="var">pme</span> = <span class="id" title="var">None</span> -&gt; <span class="id" title="var">phcSnapshot</span> <span class="id" title="var">pme</span> = <span class="id" title="var">None</span>.<br/>
+ 
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">metadata_agree</span> (<span class="id" title="var">pid</span> : <span class="id" title="var">Val</span>)(<span class="id" title="var">a</span> : <span class="id" title="var">Act</span>)(<span class="id" title="var">v</span> : <span class="id" title="var">Val</span>)(<span class="id" title="var">xs</span> : <span class="id" title="var">list</span> <span class="id" title="var">ProcVar</span>)(<span class="id" title="var">f</span> : <span class="id" title="var">ProcVar</span> -&gt; <span class="id" title="var">Val</span>)(<span class="id" title="var">h</span> <span class="id" title="var">hs</span> : <span class="id" title="var">Heap</span>)(<span class="id" title="var">pm</span> : <span class="id" title="var">ProcMap</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="var">q</span> : <span class="id" title="var">Qc</span>)(<span class="id" title="var">P</span> : <span class="id" title="var">Proc</span>),<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmeBisim</span> (<span class="id" title="var">pm</span> <span class="id" title="var">pid</span>) (<span class="id" title="var">PEelem</span> <span class="id" title="var">q</span> <span class="id" title="var">P</span> <span class="id" title="var">xs</span> <span class="id" title="var">f</span>) /\<br/>
+&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span> : <span class="id" title="var">ProcVar</span>, <span class="id" title="var">In</span> <span class="id" title="var">x</span> (<span class="id" title="var">act_fv</span> <span class="id" title="var">a</span> <span class="id" title="var">v</span>) -&gt; <span class="id" title="var">In</span> <span class="id" title="var">x</span> <span class="id" title="var">xs</span>) /\<br/>
+&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span> : <span class="id" title="var">ProcVar</span>, <span class="id" title="var">In</span> <span class="id" title="var">x</span> <span class="id" title="var">xs</span> -&gt; <span class="id" title="var">h</span> (<span class="id" title="var">f</span> <span class="id" title="var">x</span>) = <span class="id" title="var">hs</span> (<span class="id" title="var">f</span> <span class="id" title="var">x</span>)) /\<br/>
+&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">ps</span> : <span class="id" title="var">ProcStore</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span> : <span class="id" title="var">ProcVar</span>, <span class="id" title="var">In</span> <span class="id" title="var">x</span> <span class="id" title="var">xs</span> -&gt; <span class="id" title="var">h</span> (<span class="id" title="var">f</span> <span class="id" title="var">x</span>) = <span class="id" title="var">Some</span> (<span class="id" title="var">ps</span> <span class="id" title="var">x</span>)) /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pcond_eval</span> (<span class="id" title="var">guard</span> <span class="id" title="var">a</span> <span class="id" title="var">v</span>) <span class="id" title="var">ps</span> = <span class="id" title="var">true</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">metadata_agree_pmBisim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pid</span> <span class="id" title="var">a</span> <span class="id" title="var">v</span> <span class="id" title="var">xs</span> <span class="id" title="var">f</span> <span class="id" title="var">h</span> <span class="id" title="var">hs</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmBisim</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">metadata_agree</span> <span class="id" title="var">pid</span> <span class="id" title="var">a</span> <span class="id" title="var">v</span> <span class="id" title="var">xs</span> <span class="id" title="var">f</span> <span class="id" title="var">h</span> <span class="id" title="var">hs</span> <span class="id" title="var">pm1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">metadata_agree</span> <span class="id" title="var">pid</span> <span class="id" title="var">a</span> <span class="id" title="var">v</span> <span class="id" title="var">xs</span> <span class="id" title="var">f</span> <span class="id" title="var">h</span> <span class="id" title="var">hs</span> <span class="id" title="var">pm2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">metadata_agree</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">pmBisim</span> ==&gt; <span class="id" title="var">iff</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">metadata_agree_pmBisim_mor</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">metadata_agree_F</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pid</span> <span class="id" title="var">a</span> <span class="id" title="var">v</span> <span class="id" title="var">xs</span> <span class="id" title="var">F1</span> <span class="id" title="var">F2</span> <span class="id" title="var">h</span> <span class="id" title="var">hs</span> <span class="id" title="var">pm</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span> : <span class="id" title="var">ProcVar</span>, <span class="id" title="var">In</span> <span class="id" title="var">x</span> <span class="id" title="var">xs</span> -&gt; <span class="id" title="var">F1</span> <span class="id" title="var">x</span> = <span class="id" title="var">F2</span> <span class="id" title="var">x</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">metadata_agree</span> <span class="id" title="var">pid</span> <span class="id" title="var">a</span> <span class="id" title="var">v</span> <span class="id" title="var">xs</span> <span class="id" title="var">F1</span> <span class="id" title="var">h</span> <span class="id" title="var">hs</span> <span class="id" title="var">pm</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">metadata_agree</span> <span class="id" title="var">pid</span> <span class="id" title="var">a</span> <span class="id" title="var">v</span> <span class="id" title="var">xs</span> <span class="id" title="var">F2</span> <span class="id" title="var">h</span> <span class="id" title="var">hs</span> <span class="id" title="var">pm</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Now to the actual soundness result, which can be proven
+    using the following (rather involved) key lemma: 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">safe_action</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">pm'</span> (<span class="id" title="var">s</span> <span class="id" title="var">g</span> : <span class="id" title="var">Store</span>) <span class="id" title="var">x</span> <span class="id" title="var">hs</span> <span class="id" title="var">q</span> <span class="id" title="var">E</span> <span class="id" title="var">HP</span> <span class="id" title="var">HQ</span> (<span class="id" title="var">xs</span> <span class="id" title="var">ys1</span> <span class="id" title="var">ys2</span> : <span class="id" title="var">list</span> <span class="id" title="var">ProcVar</span>) <span class="id" title="var">a</span> (<span class="id" title="var">fq</span> : <span class="id" title="var">ProcVar</span> -&gt; <span class="id" title="var">Qc</span>)(<span class="id" title="var">f1</span> <span class="id" title="var">f2</span> : <span class="id" title="var">ProcVar</span> -&gt; <span class="id" title="var">Expr</span>)(<span class="id" title="var">J</span> <span class="id" title="var">A</span> : <span class="id" title="var">Assn</span>),<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">B2</span> := <span class="id" title="var">hcond_convert</span> (<span class="id" title="var">heffect</span> <span class="id" title="var">a</span> <span class="id" title="var">E</span>) <span class="id" title="var">f2</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">F1</span> := <span class="id" title="var">expr_eval_map</span> <span class="id" title="var">f1</span> <span class="id" title="var">s</span> : <span class="id" title="var">ProcVar</span> -&gt; <span class="id" title="var">Val</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">v</span> := <span class="id" title="var">expr_eval</span> <span class="id" title="var">E</span> <span class="id" title="var">s</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="var">metadata_agree</span> (<span class="id" title="var">g</span> <span class="id" title="var">x</span>) <span class="id" title="var">a</span> <span class="id" title="var">v</span> <span class="id" title="var">xs</span> <span class="id" title="var">F1</span> <span class="id" title="var">hs</span> (<span class="id" title="var">phSnapshot</span> <span class="id" title="var">ph</span>) <span class="id" title="var">pm'</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">Permutation</span> <span class="id" title="var">xs</span> (<span class="id" title="var">ys1</span> ++ <span class="id" title="var">ys2</span>) -&gt;<br/>
+&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">y</span> : <span class="id" title="var">ProcVar</span>, <span class="id" title="var">In</span> <span class="id" title="var">y</span> <span class="id" title="var">ys1</span> -&gt; <span class="id" title="var">fq</span> <span class="id" title="var">y</span> &lt;&gt; <span class="id" title="var">perm_full</span>) -&gt;<br/>
+&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">y</span> : <span class="id" title="var">ProcVar</span>, <span class="id" title="var">In</span> <span class="id" title="var">y</span> <span class="id" title="var">ys2</span> -&gt; <span class="id" title="var">fq</span> <span class="id" title="var">y</span> = <span class="id" title="var">perm_full</span>) -&gt;<br/>
+&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">y</span> : <span class="id" title="var">ProcVar</span>, <span class="id" title="var">In</span> <span class="id" title="var">y</span> <span class="id" title="var">xs</span> -&gt; <span class="id" title="var">perm_valid</span> (<span class="id" title="var">fq</span> <span class="id" title="var">y</span>)) -&gt;<br/>
+&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">y</span> : <span class="id" title="var">ProcVar</span>, <span class="id" title="var">disjoint</span> (<span class="id" title="var">expr_fv</span> (<span class="id" title="var">f1</span> <span class="id" title="var">y</span>)) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C</span>)) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">expr_fv</span> <span class="id" title="var">E</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">hproc_fv</span> <span class="id" title="var">HP</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">hproc_fv</span> <span class="id" title="var">HQ</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C</span>) -&gt;<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">cmd_mod</span> <span class="id" title="var">C</span> <span class="id" title="var">x</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">cmd_basic</span> <span class="id" title="var">C</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm</span> <span class="id" title="var">pm'</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">sat</span> <span class="id" title="var">phIden</span> <span class="id" title="var">pm'</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> (<span class="id" title="var">Aproc</span> <span class="id" title="var">x</span> <span class="id" title="var">q</span> (<span class="id" title="var">HPalt</span> (<span class="id" title="var">HPseq</span> (<span class="id" title="var">HPact</span> <span class="id" title="var">a</span> <span class="id" title="var">E</span>) <span class="id" title="var">HP</span>) <span class="id" title="var">HQ</span>) <span class="id" title="var">xs</span> <span class="id" title="var">f1</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">True</span> <span class="id" title="var">C</span> <span class="id" title="var">ph</span> <span class="id" title="var">pm</span> <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">Aiter</span> (<span class="id" title="var">ApointstoIter_procact</span> <span class="id" title="var">xs</span> <span class="id" title="var">fq</span> <span class="id" title="var">f1</span> <span class="id" title="var">f2</span>)) (<span class="id" title="var">Aplain</span> <span class="id" title="var">B2</span>)) <span class="id" title="var">A</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">safe</span> <span class="id" title="var">n</span> <span class="id" title="var">False</span> (<span class="id" title="var">Cinact</span> (<span class="id" title="var">GMdata</span> (<span class="id" title="var">g</span> <span class="id" title="var">x</span>) <span class="id" title="var">a</span> <span class="id" title="var">v</span> <span class="id" title="var">hs</span>) <span class="id" title="var">C</span>) <span class="id" title="var">ph</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm</span> <span class="id" title="var">pm'</span>) <span class="id" title="var">s</span> <span class="id" title="var">g</span> <span class="id" title="var">J</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">Aiter</span> (<span class="id" title="var">ApointstoIter</span> <span class="id" title="var">xs</span> <span class="id" title="var">fq</span> <span class="id" title="var">f1</span> <span class="id" title="var">f2</span> <span class="id" title="var">PTTproc</span>)) (<span class="id" title="var">Aproc</span> <span class="id" title="var">x</span> <span class="id" title="var">q</span> <span class="id" title="var">HP</span> <span class="id" title="var">xs</span> <span class="id" title="var">f1</span>)) (<span class="id" title="var">Aplain</span> <span class="id" title="var">B2</span>)) <span class="id" title="var">A</span>).<br/>
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_act</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span> <span class="id" title="var">a</span> <span class="id" title="var">E</span> <span class="id" title="var">C</span> <span class="id" title="var">xs</span> <span class="id" title="var">J</span> <span class="id" title="var">q</span> <span class="id" title="var">HP</span> <span class="id" title="var">HQ</span> (<span class="id" title="var">f1</span> <span class="id" title="var">f2</span> <span class="id" title="var">f2'</span> : <span class="id" title="var">ProcVar</span> -&gt; <span class="id" title="var">Expr</span>)(<span class="id" title="var">fq</span> : <span class="id" title="var">ProcVar</span> -&gt; <span class="id" title="var">Qc</span>) <span class="id" title="var">A1</span> <span class="id" title="var">A2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">B1</span> := <span class="id" title="var">hcond_convert</span> (<span class="id" title="var">hguard</span> <span class="id" title="var">a</span> <span class="id" title="var">E</span>) <span class="id" title="var">f2</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">B2</span> := <span class="id" title="var">hcond_convert</span> (<span class="id" title="var">heffect</span> <span class="id" title="var">a</span> <span class="id" title="var">E</span>) <span class="id" title="var">f2'</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">y</span> <span class="id" title="var">v</span>, <span class="id" title="var">In</span> <span class="id" title="var">y</span> (<span class="id" title="var">act_fv</span> <span class="id" title="var">a</span> <span class="id" title="var">v</span>) -&gt; <span class="id" title="var">In</span> <span class="id" title="var">y</span> <span class="id" title="var">xs</span>) -&gt;<br/>
+&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">y</span> : <span class="id" title="var">ProcVar</span>, <span class="id" title="var">In</span> <span class="id" title="var">y</span> <span class="id" title="var">xs</span> -&gt; <span class="id" title="var">perm_valid</span> (<span class="id" title="var">fq</span> <span class="id" title="var">y</span>)) -&gt;<br/>
+&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">y</span> : <span class="id" title="var">ProcVar</span>, <span class="id" title="var">disjoint</span> (<span class="id" title="var">expr_fv</span> (<span class="id" title="var">f1</span> <span class="id" title="var">y</span>)) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C</span>)) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">expr_fv</span> <span class="id" title="var">E</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">hproc_fv</span> <span class="id" title="var">HP</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">disjoint</span> (<span class="id" title="var">hproc_fv</span> <span class="id" title="var">HQ</span>) (<span class="id" title="var">cmd_mod</span> <span class="id" title="var">C</span>) -&gt;<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">cmd_mod</span> <span class="id" title="var">C</span> <span class="id" title="var">x</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">True</span> <span class="id" title="var">J</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">Aiter</span> (<span class="id" title="var">ApointstoIter_procact</span> <span class="id" title="var">xs</span> <span class="id" title="var">fq</span> <span class="id" title="var">f1</span> <span class="id" title="var">f2</span>)) (<span class="id" title="var">Aplain</span> <span class="id" title="var">B1</span>)) <span class="id" title="var">A1</span>) <span class="id" title="var">C</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">Aiter</span> (<span class="id" title="var">ApointstoIter_procact</span> <span class="id" title="var">xs</span> <span class="id" title="var">fq</span> <span class="id" title="var">f1</span> <span class="id" title="var">f2'</span>)) (<span class="id" title="var">Aplain</span> <span class="id" title="var">B2</span>)) <span class="id" title="var">A2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">False</span> <span class="id" title="var">J</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">Astar</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">Aiter</span> (<span class="id" title="var">ApointstoIter</span> <span class="id" title="var">xs</span> <span class="id" title="var">fq</span> <span class="id" title="var">f1</span> <span class="id" title="var">f2</span> <span class="id" title="var">PTTproc</span>)) (<span class="id" title="var">Aproc</span> <span class="id" title="var">x</span> <span class="id" title="var">q</span> (<span class="id" title="var">HPalt</span> (<span class="id" title="var">HPseq</span> (<span class="id" title="var">HPact</span> <span class="id" title="var">a</span> <span class="id" title="var">E</span>) <span class="id" title="var">HP</span>) <span class="id" title="var">HQ</span>) <span class="id" title="var">xs</span> <span class="id" title="var">f1</span>)) (<span class="id" title="var">Aplain</span> <span class="id" title="var">B1</span>)) <span class="id" title="var">A1</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">Cact</span> <span class="id" title="var">x</span> <span class="id" title="var">a</span> <span class="id" title="var">E</span> <span class="id" title="var">C</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">Astar</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">Aiter</span> (<span class="id" title="var">ApointstoIter</span> <span class="id" title="var">xs</span> <span class="id" title="var">fq</span> <span class="id" title="var">f1</span> <span class="id" title="var">f2'</span> <span class="id" title="var">PTTproc</span>)) (<span class="id" title="var">Aproc</span> <span class="id" title="var">x</span> <span class="id" title="var">q</span> <span class="id" title="var">HP</span> <span class="id" title="var">xs</span> <span class="id" title="var">f1</span>)) (<span class="id" title="var">Aplain</span> <span class="id" title="var">B2</span>)) <span class="id" title="var">A2</span>).<br/>
+</div>
+
+<div class="doc">
+<a name="lab206"></a><h3 class="section">Query rule</h3>
+
+<div class="paragraph"> </div>
+
+ We use the following small helper definition
+    (only for technical reasons). 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">DisjWrapper</span> (<span class="id" title="var">P</span> <span class="id" title="var">Q</span> : <span class="id" title="keyword">Prop</span>) := <span class="id" title="var">P</span> \/ <span class="id" title="var">Q</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">wrap</span> : <span class="id" title="keyword">forall</span> <span class="id" title="var">P</span> <span class="id" title="var">Q</span>, <span class="id" title="var">P</span> \/ <span class="id" title="var">Q</span> -&gt; <span class="id" title="var">DisjWrapper</span> <span class="id" title="var">P</span> <span class="id" title="var">Q</span>.<br/>
+ <span class="id" title="keyword">Lemma</span> <span class="id" title="var">unwrap</span> : <span class="id" title="keyword">forall</span> <span class="id" title="var">P</span> <span class="id" title="var">Q</span>, <span class="id" title="var">DisjWrapper</span> <span class="id" title="var">P</span> <span class="id" title="var">Q</span> -&gt; <span class="id" title="var">P</span> \/ <span class="id" title="var">Q</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+And now the actual rule. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <span class="id" title="var">rule_query</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span> <span class="id" title="var">HB</span> <span class="id" title="var">HP</span> <span class="id" title="var">HQ</span> <span class="id" title="var">q</span> (<span class="id" title="var">xs</span> : <span class="id" title="var">list</span> <span class="id" title="var">ProcVar</span>)(<span class="id" title="var">f1</span> <span class="id" title="var">f2</span> : <span class="id" title="var">ProcVar</span> -&gt; <span class="id" title="var">Expr</span>)(<span class="id" title="var">fq</span> : <span class="id" title="var">ProcVar</span> -&gt; <span class="id" title="var">Qc</span>) <span class="id" title="var">J</span> <span class="id" title="var">A</span>,<br/>
+&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">y</span> : <span class="id" title="var">ProcVar</span>, <span class="id" title="var">In</span> <span class="id" title="var">y</span> (<span class="id" title="var">hcond_fpv</span> <span class="id" title="var">HB</span>) -&gt; <span class="id" title="var">In</span> <span class="id" title="var">y</span> <span class="id" title="var">xs</span>) -&gt;<br/>
+&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">y</span> : <span class="id" title="var">ProcVar</span>, <span class="id" title="var">In</span> <span class="id" title="var">y</span> <span class="id" title="var">xs</span> -&gt; <span class="id" title="var">perm_valid</span> (<span class="id" title="var">fq</span> <span class="id" title="var">y</span>)) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">B</span> := <span class="id" title="var">hcond_convert</span> <span class="id" title="var">HB</span> <span class="id" title="var">f2</span> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="var">csl</span> <span class="id" title="var">False</span> <span class="id" title="var">J</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">Astar</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">Aiter</span> (<span class="id" title="var">ApointstoIter</span> <span class="id" title="var">xs</span> <span class="id" title="var">fq</span> <span class="id" title="var">f1</span> <span class="id" title="var">f2</span> <span class="id" title="var">PTTproc</span>)) (<span class="id" title="var">Aproc</span> <span class="id" title="var">x</span> <span class="id" title="var">q</span> (<span class="id" title="var">HPalt</span> (<span class="id" title="var">HPseq</span> (<span class="id" title="var">HPassert</span> <span class="id" title="var">HB</span>) <span class="id" title="var">HP</span>) <span class="id" title="var">HQ</span>) <span class="id" title="var">xs</span> <span class="id" title="var">f1</span>)) <span class="id" title="var">A</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">Cquery</span> <span class="id" title="var">x</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">Astar</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">Astar</span> (<span class="id" title="var">Aiter</span> (<span class="id" title="var">ApointstoIter</span> <span class="id" title="var">xs</span> <span class="id" title="var">fq</span> <span class="id" title="var">f1</span> <span class="id" title="var">f2</span> <span class="id" title="var">PTTproc</span>)) (<span class="id" title="var">Aproc</span> <span class="id" title="var">x</span> <span class="id" title="var">q</span> <span class="id" title="var">HP</span> <span class="id" title="var">xs</span> <span class="id" title="var">f1</span>)) (<span class="id" title="var">Aplain</span> <span class="id" title="var">B</span>)) <span class="id" title="var">A</span>).<br/>
+<span class="id" title="keyword">End</span> <span class="id" title="var">Soundness</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

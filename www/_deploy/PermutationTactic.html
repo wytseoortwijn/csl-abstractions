@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>PermutationTactic</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library PermutationTactic</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Coq.Lists.List</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Coq.Sorting.Permutation</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Coq.Relations.Relations</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Coq.Classes.Morphisms</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Coq.Setoids.Setoid</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">app_compat_perm_latter</span> (<span class="id" title="var">A</span> : <span class="id" title="keyword">Type</span>) :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">l</span> <span class="id" title="var">a1</span> <span class="id" title="var">a2</span>:<span class="id" title="var">list</span> <span class="id" title="var">A</span>, <span class="id" title="var">Permutation</span> <span class="id" title="var">a1</span> <span class="id" title="var">a2</span> -&gt; <span class="id" title="var">Permutation</span> (<span class="id" title="var">l</span>++<span class="id" title="var">a1</span>) (<span class="id" title="var">l</span>++<span class="id" title="var">a2</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Instance</span> <span class="id" title="var">app_compat_perm</span> (<span class="id" title="var">A</span> : <span class="id" title="keyword">Type</span>) :<br/>
+&nbsp;&nbsp;<span class="id" title="var">Proper</span> (@<span class="id" title="var">Permutation</span> <span class="id" title="var">A</span> ==&gt; @<span class="id" title="var">Permutation</span> <span class="id" title="var">A</span> ==&gt; @<span class="id" title="var">Permutation</span> <span class="id" title="var">A</span>) (@<span class="id" title="var">app</span> <span class="id" title="var">A</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">app_normalize_1</span>:<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span>(<span class="id" title="var">A</span>:<span class="id" title="keyword">Type</span>) (<span class="id" title="var">l1</span> <span class="id" title="var">l2</span> <span class="id" title="var">l3</span>:<span class="id" title="var">list</span> <span class="id" title="var">A</span>),<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">l1</span> ++ <span class="id" title="var">l2</span>) ++ <span class="id" title="var">l3</span> = <span class="id" title="var">l1</span> ++ (<span class="id" title="var">l2</span> ++ <span class="id" title="var">l3</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">app_normalize_2</span>:<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span>(<span class="id" title="var">A</span>:<span class="id" title="keyword">Type</span>) (<span class="id" title="var">a1</span>:<span class="id" title="var">A</span>) (<span class="id" title="var">l2</span> <span class="id" title="var">l3</span>:<span class="id" title="var">list</span> <span class="id" title="var">A</span>),<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">a1</span> :: <span class="id" title="var">l2</span>) ++ <span class="id" title="var">l3</span> = <span class="id" title="var">a1</span> :: (<span class="id" title="var">l2</span> ++ <span class="id" title="var">l3</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">app_normalize_3</span>:<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span>(<span class="id" title="var">A</span>:<span class="id" title="keyword">Type</span>) (<span class="id" title="var">l1</span>:<span class="id" title="var">list</span> <span class="id" title="var">A</span>), (<span class="id" title="var">nil</span>++<span class="id" title="var">l1</span>) = <span class="id" title="var">l1</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">app_normalize</span> := <span class="id" title="tactic">repeat</span> (<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">app_normalize_1</span> || <br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">app_normalize_2</span> ||<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">app_normalize_3</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_takeit_1</span>:<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span>(<span class="id" title="var">A</span>:<span class="id" title="keyword">Type</span>) (<span class="id" title="var">target</span>:<span class="id" title="var">list</span> <span class="id" title="var">A</span>) (<span class="id" title="var">l1</span> <span class="id" title="var">l2</span>:<span class="id" title="var">list</span> <span class="id" title="var">A</span>),<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">Permutation</span> (<span class="id" title="var">l1</span> ++ (<span class="id" title="var">target</span> ++ <span class="id" title="var">l2</span>)) (<span class="id" title="var">target</span> ++ (<span class="id" title="var">l1</span> ++ <span class="id" title="var">l2</span>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_takeit_2</span>:<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span>(<span class="id" title="var">A</span>:<span class="id" title="keyword">Type</span>) (<span class="id" title="var">target</span>:<span class="id" title="var">list</span> <span class="id" title="var">A</span>) (<span class="id" title="var">a1</span>:<span class="id" title="var">A</span>) (<span class="id" title="var">l2</span>:<span class="id" title="var">list</span> <span class="id" title="var">A</span>),<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">Permutation</span> (<span class="id" title="var">a1</span> :: (<span class="id" title="var">target</span> ++ <span class="id" title="var">l2</span>)) (<span class="id" title="var">target</span> ++ (<span class="id" title="var">a1</span> :: <span class="id" title="var">l2</span>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_takeit_3</span>:<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span>(<span class="id" title="var">A</span>:<span class="id" title="keyword">Type</span>) (<span class="id" title="var">target</span>:<span class="id" title="var">list</span> <span class="id" title="var">A</span>) (<span class="id" title="var">l1</span>:<span class="id" title="var">list</span> <span class="id" title="var">A</span>),<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">Permutation</span> (<span class="id" title="var">l1</span> ++ <span class="id" title="var">target</span>) (<span class="id" title="var">target</span> ++ <span class="id" title="var">l1</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_takeit_4</span>:<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span>(<span class="id" title="var">A</span>:<span class="id" title="keyword">Type</span>) (<span class="id" title="var">target</span>:<span class="id" title="var">list</span> <span class="id" title="var">A</span>) (<span class="id" title="var">a1</span>:<span class="id" title="var">A</span>),<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">Permutation</span> (<span class="id" title="var">a1</span> :: <span class="id" title="var">target</span>) (<span class="id" title="var">target</span> ++ (<span class="id" title="var">a1</span>::<span class="id" title="var">nil</span>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_takeit_5</span>:<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span>(<span class="id" title="var">A</span>:<span class="id" title="keyword">Type</span>) (<span class="id" title="var">target</span>:<span class="id" title="var">A</span>) (<span class="id" title="var">l1</span> <span class="id" title="var">l2</span>:<span class="id" title="var">list</span> <span class="id" title="var">A</span>),<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">Permutation</span> (<span class="id" title="var">l1</span> ++ (<span class="id" title="var">target</span> :: <span class="id" title="var">l2</span>)) (<span class="id" title="var">target</span> :: (<span class="id" title="var">l1</span> ++ <span class="id" title="var">l2</span>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_takeit_6</span>:<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span>(<span class="id" title="var">A</span>:<span class="id" title="keyword">Type</span>) (<span class="id" title="var">target</span>:<span class="id" title="var">A</span>) (<span class="id" title="var">a1</span>:<span class="id" title="var">A</span>) (<span class="id" title="var">l2</span>:<span class="id" title="var">list</span> <span class="id" title="var">A</span>),<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">Permutation</span> (<span class="id" title="var">a1</span> :: (<span class="id" title="var">target</span> :: <span class="id" title="var">l2</span>)) (<span class="id" title="var">target</span> :: (<span class="id" title="var">a1</span> :: <span class="id" title="var">l2</span>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_takeit_7</span>:<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span>(<span class="id" title="var">A</span>:<span class="id" title="keyword">Type</span>) (<span class="id" title="var">target</span>:<span class="id" title="var">A</span>) (<span class="id" title="var">l1</span>:<span class="id" title="var">list</span> <span class="id" title="var">A</span>),<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">Permutation</span> (<span class="id" title="var">l1</span> ++ (<span class="id" title="var">target</span>::<span class="id" title="var">nil</span>)) (<span class="id" title="var">target</span> :: <span class="id" title="var">l1</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_takeit_8</span>:<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span>(<span class="id" title="var">A</span>:<span class="id" title="keyword">Type</span>) (<span class="id" title="var">target</span>:<span class="id" title="var">A</span>) (<span class="id" title="var">a1</span>:<span class="id" title="var">A</span>),<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">Permutation</span> (<span class="id" title="var">a1</span> :: (<span class="id" title="var">target</span>::<span class="id" title="var">nil</span>)) (<span class="id" title="var">target</span> :: (<span class="id" title="var">a1</span>::<span class="id" title="var">nil</span>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">perm_simplify</span> := <span class="id" title="var">app_normalize</span>; <span class="id" title="tactic">repeat</span> (<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">app_nil_r</span> ||<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;| [ |- <span class="id" title="var">Permutation</span> ?<span class="id" title="var">L1</span> ?<span class="id" title="var">L1</span> ] =&gt; <span class="id" title="tactic">reflexivity</span><br/>
+&nbsp;&nbsp;| [ |- <span class="id" title="var">Permutation</span> (?<span class="id" title="var">A1</span>++<span class="id" title="var">_</span>) (?<span class="id" title="var">A1</span>++<span class="id" title="var">_</span>) ] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">Permutation_app_head</span><br/>
+&nbsp;&nbsp;| [ |- <span class="id" title="var">Permutation</span> (?<span class="id" title="var">A1</span>::<span class="id" title="var">_</span>) (?<span class="id" title="var">A1</span>::<span class="id" title="var">_</span>) ] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_skip</span><br/>
+&nbsp;&nbsp;| [ |- <span class="id" title="var">Permutation</span> (?<span class="id" title="var">L1</span>++<span class="id" title="var">_</span>) <span class="id" title="var">_</span> ] =&gt; (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> (<span class="id" title="var">perm_takeit_1</span> <span class="id" title="var">_</span> <span class="id" title="var">L1</span>) ||<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> (<span class="id" title="var">perm_takeit_2</span> <span class="id" title="var">_</span> <span class="id" title="var">L1</span>) ||<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> (<span class="id" title="var">perm_takeit_3</span> <span class="id" title="var">_</span> <span class="id" title="var">L1</span>) ||<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> (<span class="id" title="var">perm_takeit_4</span> <span class="id" title="var">_</span> <span class="id" title="var">L1</span>) )<br/>
+&nbsp;&nbsp;| [ |- <span class="id" title="var">Permutation</span> (?<span class="id" title="var">A1</span>::<span class="id" title="var">_</span>) <span class="id" title="var">_</span> ] =&gt; (<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> (<span class="id" title="var">perm_takeit_5</span> <span class="id" title="var">_</span> <span class="id" title="var">A1</span>) ||<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> (<span class="id" title="var">perm_takeit_6</span> <span class="id" title="var">_</span> <span class="id" title="var">A1</span>) ||<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> (<span class="id" title="var">perm_takeit_7</span> <span class="id" title="var">_</span> <span class="id" title="var">A1</span>) ||<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> (<span class="id" title="var">perm_takeit_8</span> <span class="id" title="var">_</span> <span class="id" title="var">A1</span>) )<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">list_permutation</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;| [ |- <span class="id" title="var">Permutation</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> ] =&gt; <span class="id" title="var">perm_simplify</span>; <span class="id" title="tactic">auto</span>; <span class="id" title="tactic">fail</span> "list_permutation failed"<br/>
+&nbsp;&nbsp;| [ |- <span class="id" title="var">_</span> ] =&gt; <span class="id" title="tactic">fail</span> "list_permutation can't solve this system"<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">permut_induction</span> <span class="id" title="var">M</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">M</span> <span class="id" title="keyword">as</span> [|<span class="id" title="var">A</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span> <span class="id" title="var">H1</span> <span class="id" title="var">IH1</span>|<span class="id" title="var">A1</span> <span class="id" title="var">A2</span> <span class="id" title="var">xs</span>|<span class="id" title="var">xs</span> <span class="id" title="var">ys</span> <span class="id" title="var">zs</span> <span class="id" title="var">H1</span> <span class="id" title="var">IH1</span> <span class="id" title="var">H2</span> <span class="id" title="var">IH2</span>].<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">Permutation_sym</span> : <span class="id" title="var">core</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

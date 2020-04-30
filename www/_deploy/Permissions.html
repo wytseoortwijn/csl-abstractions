@@ -1,0 +1,899 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>Permissions</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library Permissions</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">HahnBase</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">List</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">ListSet</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Permutation</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">PermutationTactic</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Prelude</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">QArith</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Qcanon</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Utf8</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Import</span> <span class="id" title="var">ListNotations</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">Qc_scope</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab55"></a><h1 class="section">Permissions</h1>
+
+<div class="paragraph"> </div>
+
+<a name="lab56"></a><h2 class="section">Prerequisites</h2>
+
+<div class="paragraph"> </div>
+
+ Below are some basic properties and results on rational numbers. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Q2Qc_correct</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q</span> : <span class="id" title="var">Q</span>, <span class="id" title="var">Q2Qc</span> <span class="id" title="var">q</span> == <span class="id" title="var">q</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcplus_lt_compat</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <span class="id" title="var">t</span> : <span class="id" title="var">Qc</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">x</span> &lt; <span class="id" title="var">y</span> -&gt; <span class="id" title="var">z</span> &lt; <span class="id" title="var">t</span> -&gt; <span class="id" title="var">x</span> + <span class="id" title="var">z</span> &lt; <span class="id" title="var">y</span> + <span class="id" title="var">t</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcplus_le_mono_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> : <span class="id" title="var">Qc</span>, <span class="id" title="var">x</span> &lt;= <span class="id" title="var">y</span> &lt;-&gt; <span class="id" title="var">z</span> + <span class="id" title="var">x</span> &lt;= <span class="id" title="var">z</span> + <span class="id" title="var">y</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcplus_le_mono_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> : <span class="id" title="var">Qc</span>, <span class="id" title="var">x</span> &lt;= <span class="id" title="var">y</span> &lt;-&gt; <span class="id" title="var">x</span> + <span class="id" title="var">z</span> &lt;= <span class="id" title="var">y</span> + <span class="id" title="var">z</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qclt_nge</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> : <span class="id" title="var">Qc</span>, <span class="id" title="var">x</span> &lt; <span class="id" title="var">y</span> &lt;-&gt; ~ <span class="id" title="var">y</span> &lt;= <span class="id" title="var">x</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qclt_irrefl</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q</span> : <span class="id" title="var">Qc</span>, ~ <span class="id" title="var">q</span> &lt; <span class="id" title="var">q</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qclt_asymm</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> : <span class="id" title="var">Qc</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">q1</span> &lt; <span class="id" title="var">q2</span> -&gt; ~ <span class="id" title="var">q2</span> &lt; <span class="id" title="var">q1</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcplus_lt_mono_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> : <span class="id" title="var">Qc</span>, <span class="id" title="var">x</span> &lt; <span class="id" title="var">y</span> &lt;-&gt; <span class="id" title="var">z</span> + <span class="id" title="var">x</span> &lt; <span class="id" title="var">z</span> + <span class="id" title="var">y</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcplus_lt_mono_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> : <span class="id" title="var">Qc</span>, <span class="id" title="var">x</span> &lt; <span class="id" title="var">y</span> &lt;-&gt; <span class="id" title="var">x</span> + <span class="id" title="var">z</span> &lt; <span class="id" title="var">y</span> + <span class="id" title="var">z</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcplus_lt_compat_le_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <span class="id" title="var">t</span> : <span class="id" title="var">Qc</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">x</span> &lt;= <span class="id" title="var">y</span> -&gt; <span class="id" title="var">z</span> &lt; <span class="id" title="var">t</span> -&gt; <span class="id" title="var">x</span> + <span class="id" title="var">z</span> &lt; <span class="id" title="var">y</span> + <span class="id" title="var">t</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcplus_lt_compat_le_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <span class="id" title="var">t</span> : <span class="id" title="var">Qc</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">x</span> &lt; <span class="id" title="var">y</span> -&gt; <span class="id" title="var">z</span> &lt;= <span class="id" title="var">t</span> -&gt; <span class="id" title="var">x</span> + <span class="id" title="var">z</span> &lt; <span class="id" title="var">y</span> + <span class="id" title="var">t</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcplus_pos_nonneg</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span> : <span class="id" title="var">Qc</span>, 0 &lt; <span class="id" title="var">p</span> -&gt; 0 &lt;= <span class="id" title="var">q</span> -&gt; 0 &lt; <span class="id" title="var">p</span> + <span class="id" title="var">q</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcplus_swap_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">q3</span> : <span class="id" title="var">Qc</span>, <span class="id" title="var">q1</span> + (<span class="id" title="var">q2</span> + <span class="id" title="var">q3</span>) = <span class="id" title="var">q2</span> + (<span class="id" title="var">q1</span> + <span class="id" title="var">q3</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcplus_swap_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">q3</span> : <span class="id" title="var">Qc</span>, <span class="id" title="var">q1</span> + (<span class="id" title="var">q2</span> + <span class="id" title="var">q3</span>) = <span class="id" title="var">q3</span> + (<span class="id" title="var">q2</span> + <span class="id" title="var">q1</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcplus_pos_le_elim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">q</span> : <span class="id" title="var">Qc</span>, <span class="id" title="var">q1</span> + <span class="id" title="var">q2</span> &lt;= <span class="id" title="var">q</span> -&gt; 0 &lt;= <span class="id" title="var">q2</span> -&gt; <span class="id" title="var">q1</span> &lt;= <span class="id" title="var">q</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcplus_pos_lt_elim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">q</span> : <span class="id" title="var">Qc</span>, <span class="id" title="var">q1</span> + <span class="id" title="var">q2</span> &lt; <span class="id" title="var">q</span> -&gt; 0 &lt;= <span class="id" title="var">q2</span> -&gt; <span class="id" title="var">q1</span> &lt; <span class="id" title="var">q</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcplus_le_weaken</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">q</span> : <span class="id" title="var">Qc</span>, 0 &lt; <span class="id" title="var">q</span> -&gt; <span class="id" title="var">q1</span> &lt;= <span class="id" title="var">q2</span> -&gt; <span class="id" title="var">q1</span> &lt;= <span class="id" title="var">q2</span> + <span class="id" title="var">q</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcplus_lt_weaken</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">q</span> : <span class="id" title="var">Qc</span>,<br/>
+&nbsp;&nbsp;0 &lt; <span class="id" title="var">q</span> -&gt; <span class="id" title="var">q1</span> &lt;= <span class="id" title="var">q2</span> -&gt; <span class="id" title="var">q1</span> &lt; <span class="id" title="var">q2</span> + <span class="id" title="var">q</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcle_diff</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> : <span class="id" title="var">Qc</span>, <span class="id" title="var">q1</span> &lt;= <span class="id" title="var">q2</span> -&gt; <span class="id" title="tactic">exists</span> <span class="id" title="var">q</span>, <span class="id" title="var">q2</span> = <span class="id" title="var">q1</span> + <span class="id" title="var">q</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qclt_diff</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> : <span class="id" title="var">Qc</span>, <span class="id" title="var">q1</span> &lt; <span class="id" title="var">q2</span> -&gt; <span class="id" title="tactic">exists</span> <span class="id" title="var">q</span>, <span class="id" title="var">q2</span> = <span class="id" title="var">q</span> + <span class="id" title="var">q1</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qclt_mono_pos</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> : <span class="id" title="var">Qc</span>, 0 &lt; <span class="id" title="var">q1</span> -&gt; <span class="id" title="var">q2</span> &lt; <span class="id" title="var">q2</span> + <span class="id" title="var">q1</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcle_plus_elim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">q3</span> : <span class="id" title="var">Qc</span>, 0 &lt;= <span class="id" title="var">q1</span> -&gt; 0 &lt;= <span class="id" title="var">q2</span> -&gt; <span class="id" title="var">q1</span> + <span class="id" title="var">q2</span> &lt;= <span class="id" title="var">q3</span> -&gt; <span class="id" title="var">q1</span> &lt;= <span class="id" title="var">q3</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcle_weaken</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> : <span class="id" title="var">Qc</span>, <span class="id" title="var">q1</span> = <span class="id" title="var">q2</span> -&gt; <span class="id" title="var">q1</span> &lt;= <span class="id" title="var">q2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcplus_canc_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">q</span> : <span class="id" title="var">Qc</span>, <span class="id" title="var">q</span> + <span class="id" title="var">q1</span> = <span class="id" title="var">q</span> + <span class="id" title="var">q2</span> -&gt; <span class="id" title="var">q1</span> = <span class="id" title="var">q2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcplus_canc_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">q</span> : <span class="id" title="var">Qc</span>, <span class="id" title="var">q1</span> + <span class="id" title="var">q</span> = <span class="id" title="var">q2</span> + <span class="id" title="var">q</span> -&gt; <span class="id" title="var">q1</span> = <span class="id" title="var">q2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcplus_neg_dist</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> : <span class="id" title="var">Qc</span>, -(<span class="id" title="var">q1</span> + <span class="id" title="var">q2</span>) = (-<span class="id" title="var">q1</span>) + (-<span class="id" title="var">q2</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">Qcplus_pos_le</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> : <span class="id" title="var">Qc</span>, 0 &lt; <span class="id" title="var">q2</span> -&gt; <span class="id" title="var">q1</span> &lt;= <span class="id" title="var">q1</span> + <span class="id" title="var">q2</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab57"></a><h2 class="section">Fractional permissions</h2>
+
+<div class="paragraph"> </div>
+
+ Fractional permissions are rational numbers in the range (0..1]. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">perm_full</span> := 1%<span class="id" title="var">Qc</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab58"></a><h3 class="section">Validity</h3>
+
+<div class="paragraph"> </div>
+
+ Any rational number <span class="inlinecode"><span class="id" title="var">q</span></span> is a <i>valid fractional permission</i>,
+    written <span class="inlinecode"><span class="id" title="var">perm_valid</span></span> <span class="inlinecode"><span class="id" title="var">q</span></span>, if <span class="inlinecode"><span class="id" title="var">q</span></span> is within the range (0..1]. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">perm_valid</span> (<span class="id" title="var">q</span> : <span class="id" title="var">Qc</span>) : <span class="id" title="keyword">Prop</span> := 0 &lt; <span class="id" title="var">q</span> /\ <span class="id" title="var">q</span> &lt;= 1.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_valid_mono</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span>, <span class="id" title="var">perm_valid</span> <span class="id" title="var">q1</span> -&gt; <span class="id" title="var">q2</span> &lt; <span class="id" title="var">q1</span> + <span class="id" title="var">q2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_valid_pos</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q</span> : <span class="id" title="var">Qc</span>, <span class="id" title="var">perm_valid</span> <span class="id" title="var">q</span> -&gt; 0 &lt; <span class="id" title="var">q</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">perm_valid_pos</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_valid_full_neg</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q</span>, <span class="id" title="var">perm_valid</span> <span class="id" title="var">q</span> -&gt; ~ <span class="id" title="var">perm_full</span> &lt; <span class="id" title="var">q</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_valid_full</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q</span>, <span class="id" title="var">perm_valid</span> <span class="id" title="var">q</span> -&gt; <span class="id" title="var">perm_full</span> &lt;= <span class="id" title="var">q</span> -&gt; <span class="id" title="var">q</span> = <span class="id" title="var">perm_full</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab59"></a><h3 class="section">Disjointness</h3>
+
+<div class="paragraph"> </div>
+
+ Two permissions <span class="inlinecode"><span class="id" title="var">q1</span></span> and <span class="inlinecode"><span class="id" title="var">q2</span></span> are <i>disjoint</i>,
+    written <span class="inlinecode"><span class="id" title="var">perm_disj</span></span> <span class="inlinecode"><span class="id" title="var">q1</span></span> <span class="inlinecode"><span class="id" title="var">q2</span></span>, if they are both positive
+    and their sum does not exceed 1. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">perm_disj</span> (<span class="id" title="var">q1</span> <span class="id" title="var">q2</span> : <span class="id" title="var">Qc</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;0 &lt; <span class="id" title="var">q1</span> /\ 0 &lt; <span class="id" title="var">q2</span> /\ <span class="id" title="var">q1</span> + <span class="id" title="var">q2</span> &lt;= 1.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Permission disjointness is a symmetric relation. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Instance</span> <span class="id" title="var">perm_disj_symm</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="var">Symmetric</span> <span class="id" title="var">perm_disj</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Permission disjointness implies validity of its operands. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_valid_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span>, <span class="id" title="var">perm_disj</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> -&gt; <span class="id" title="var">perm_valid</span> <span class="id" title="var">q1</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_valid_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span>, <span class="id" title="var">perm_disj</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> -&gt; <span class="id" title="var">perm_valid</span> <span class="id" title="var">q2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_valid</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span>, <span class="id" title="var">perm_disj</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> -&gt; <span class="id" title="var">perm_valid</span> <span class="id" title="var">q1</span> /\ <span class="id" title="var">perm_valid</span> <span class="id" title="var">q2</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Below are several other useful properties of disjointness. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_add_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">q3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> -&gt; <span class="id" title="var">perm_disj</span> (<span class="id" title="var">q1</span> + <span class="id" title="var">q2</span>) <span class="id" title="var">q3</span> -&gt; <span class="id" title="var">perm_disj</span> <span class="id" title="var">q2</span> <span class="id" title="var">q3</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_add_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">q3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj</span> <span class="id" title="var">q2</span> <span class="id" title="var">q3</span> -&gt; <span class="id" title="var">perm_disj</span> <span class="id" title="var">q1</span> (<span class="id" title="var">q2</span> + <span class="id" title="var">q3</span>) -&gt; <span class="id" title="var">perm_disj</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_assoc_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">q3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> -&gt; <span class="id" title="var">perm_disj</span> (<span class="id" title="var">q1</span> + <span class="id" title="var">q2</span>) <span class="id" title="var">q3</span> -&gt; <span class="id" title="var">perm_disj</span> <span class="id" title="var">q1</span> (<span class="id" title="var">q2</span> + <span class="id" title="var">q3</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_assoc_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">q3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj</span> <span class="id" title="var">q2</span> <span class="id" title="var">q3</span> -&gt; <span class="id" title="var">perm_disj</span> <span class="id" title="var">q1</span> (<span class="id" title="var">q2</span> + <span class="id" title="var">q3</span>) -&gt; <span class="id" title="var">perm_disj</span> (<span class="id" title="var">q1</span> + <span class="id" title="var">q2</span>) <span class="id" title="var">q3</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_add_valid</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span>, <span class="id" title="var">perm_disj</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> -&gt; <span class="id" title="var">perm_valid</span> (<span class="id" title="var">q1</span> + <span class="id" title="var">q2</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_lt_weaken</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span>, <span class="id" title="var">perm_disj</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> -&gt; <span class="id" title="var">q</span> &lt; <span class="id" title="var">q1</span> -&gt; <span class="id" title="var">q</span> &lt; <span class="id" title="var">q1</span> + <span class="id" title="var">q2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_le_weaken</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span>, <span class="id" title="var">perm_disj</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> -&gt; <span class="id" title="var">q</span> &lt;= <span class="id" title="var">q1</span> -&gt; <span class="id" title="var">q</span> &lt;= <span class="id" title="var">q1</span> + <span class="id" title="var">q2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_full_neg_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q</span>, ~ <span class="id" title="var">perm_disj</span> <span class="id" title="var">q</span> <span class="id" title="var">perm_full</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_full_neg_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q</span>, ~ <span class="id" title="var">perm_disj</span> <span class="id" title="var">perm_full</span> <span class="id" title="var">q</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_lt_diff</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_valid</span> <span class="id" title="var">q1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_valid</span> <span class="id" title="var">q2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">q1</span> &lt; <span class="id" title="var">q2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">q3</span>, <span class="id" title="var">perm_disj</span> <span class="id" title="var">q1</span> <span class="id" title="var">q3</span> /\ <span class="id" title="var">q1</span> + <span class="id" title="var">q3</span> = <span class="id" title="var">q2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_lt</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">q3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_valid</span> <span class="id" title="var">q1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj</span> <span class="id" title="var">q2</span> <span class="id" title="var">q3</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">q1</span> &lt; <span class="id" title="var">q2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj</span> <span class="id" title="var">q1</span> <span class="id" title="var">q3</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_le</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">q3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_valid</span> <span class="id" title="var">q1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj</span> <span class="id" title="var">q2</span> <span class="id" title="var">q3</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">q1</span> &lt;= <span class="id" title="var">q2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj</span> <span class="id" title="var">q1</span> <span class="id" title="var">q3</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab60"></a><h2 class="section">Permission sequences</h2>
+
+<div class="paragraph"> </div>
+
+ This section defines operations on <i>sequences</i> of fractional permissions. 
+<div class="paragraph"> </div>
+
+<a name="lab61"></a><h3 class="section">Validity</h3>
+
+<div class="paragraph"> </div>
+
+ A sequence of fractional permissions is <i>valid</i> if all permissions are valid individually. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Fixpoint</span> <span class="id" title="var">perm_valid_list</span> (<span class="id" title="var">xs</span> : <span class="id" title="var">list</span> <span class="id" title="var">Qc</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">xs</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">nil</span> =&gt; <span class="id" title="var">True</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">q</span> :: <span class="id" title="var">xs'</span> =&gt; <span class="id" title="var">perm_valid</span> <span class="id" title="var">q</span> /\ <span class="id" title="var">perm_valid_list</span> <span class="id" title="var">xs'</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> &quot;√ qs" := (<span class="id" title="var">perm_valid_list</span> <span class="id" title="var">qs</span>) (<span class="id" title="var">only</span> <span class="id" title="var">printing</span>, <span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_valid_list_single</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q</span>, <span class="id" title="var">perm_valid_list</span> [<span class="id" title="var">q</span>] &lt;-&gt; <span class="id" title="var">perm_valid</span> <span class="id" title="var">q</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">perm_valid_list_single</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_valid_list_permutation</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">xs1</span> <span class="id" title="var">xs2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">Permutation</span> <span class="id" title="var">xs1</span> <span class="id" title="var">xs2</span> -&gt; <span class="id" title="var">perm_valid_list</span> <span class="id" title="var">xs1</span> -&gt; <span class="id" title="var">perm_valid_list</span> <span class="id" title="var">xs2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">perm_valid_list</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> @<span class="id" title="var">Permutation</span> <span class="id" title="var">Qc</span> ==&gt; <span class="id" title="var">iff</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">perm_valid_list_permut_mor</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab62"></a><h3 class="section">Positivity</h3>
+
+<div class="paragraph"> </div>
+
+ A sequence of fractional permissions is <i>positive</i> if
+    all rationals in the list are positive. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Fixpoint</span> <span class="id" title="var">perm_pos_list</span> (<span class="id" title="var">xs</span> : <span class="id" title="var">list</span> <span class="id" title="var">Qc</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">xs</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">nil</span> =&gt; <span class="id" title="var">True</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">q</span> :: <span class="id" title="var">xs'</span> =&gt; 0 &lt; <span class="id" title="var">q</span> /\ <span class="id" title="var">perm_pos_list</span> <span class="id" title="var">xs'</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_pos_list_In</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">qs</span> <span class="id" title="var">q</span>, <span class="id" title="var">perm_pos_list</span> <span class="id" title="var">qs</span> -&gt; <span class="id" title="var">In</span> <span class="id" title="var">q</span> <span class="id" title="var">qs</span> -&gt; 0 &lt; <span class="id" title="var">q</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_pos_list_permutation</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">Permutation</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span> -&gt; <span class="id" title="var">perm_pos_list</span> <span class="id" title="var">xs</span> -&gt; <span class="id" title="var">perm_pos_list</span> <span class="id" title="var">ys</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">perm_pos_list</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> @<span class="id" title="var">Permutation</span> <span class="id" title="var">Qc</span> ==&gt; <span class="id" title="var">iff</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">perm_pos_list_permut_mor</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">perm_pos_list_solve</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| [ <span class="id" title="var">_</span> : (<span class="id" title="var">perm_pos_list</span> ?<span class="id" title="var">X</span>) |- (<span class="id" title="var">perm_pos_list</span> <span class="id" title="var">_</span>) ] =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">perm_pos_list_permutation</span> <span class="id" title="keyword">with</span> <span class="id" title="var">X</span>; <span class="id" title="tactic">auto</span>; <span class="id" title="var">list_permutation</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">fail</span> "perm_pos_list_solve can not solve this system."<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| [ |- <span class="id" title="var">_</span> ] =&gt; <span class="id" title="tactic">fail</span> "perm_pos_list_solve can not be applied."<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_pos_list_add_left</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">qs</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> (<span class="id" title="var">q1</span> :: <span class="id" title="var">q2</span> :: <span class="id" title="var">qs</span>) -&gt; <span class="id" title="var">perm_pos_list</span> (<span class="id" title="var">q1</span> + <span class="id" title="var">q2</span> :: <span class="id" title="var">qs</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_pos_list_add</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">qs1</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">qs2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> (<span class="id" title="var">qs1</span> ++ <span class="id" title="var">q1</span> :: <span class="id" title="var">q2</span> :: <span class="id" title="var">qs2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> (<span class="id" title="var">qs1</span> ++ <span class="id" title="var">q1</span> + <span class="id" title="var">q2</span> :: <span class="id" title="var">qs2</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_pos_list_tail</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q</span> <span class="id" title="var">qs</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> (<span class="id" title="var">q</span> :: <span class="id" title="var">qs</span>) -&gt; <span class="id" title="var">perm_pos_list</span> <span class="id" title="var">qs</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_pos_list_sub_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> (<span class="id" title="var">xs</span> ++ <span class="id" title="var">ys</span>) -&gt; <span class="id" title="var">perm_pos_list</span> <span class="id" title="var">xs</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_pos_list_sub_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> (<span class="id" title="var">xs</span> ++ <span class="id" title="var">ys</span>) -&gt; <span class="id" title="var">perm_pos_list</span> <span class="id" title="var">ys</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_pos_list_remove</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> (<span class="id" title="var">xs</span> ++ <span class="id" title="var">q</span> :: <span class="id" title="var">ys</span>) -&gt; <span class="id" title="var">perm_pos_list</span> (<span class="id" title="var">xs</span> ++ <span class="id" title="var">ys</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_pos_list_remove_list</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span> <span class="id" title="var">zs</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> (<span class="id" title="var">xs</span> ++ <span class="id" title="var">ys</span> ++ <span class="id" title="var">zs</span>) -&gt; <span class="id" title="var">perm_pos_list</span> (<span class="id" title="var">xs</span> ++ <span class="id" title="var">zs</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_valid_list_pos</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">qs</span>, <span class="id" title="var">perm_valid_list</span> <span class="id" title="var">qs</span> -&gt; <span class="id" title="var">perm_pos_list</span> <span class="id" title="var">qs</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">perm_valid_list_pos</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_pos_list_cons</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q</span> <span class="id" title="var">qs</span>,<br/>
+&nbsp;&nbsp;0 &lt; <span class="id" title="var">q</span> -&gt; <span class="id" title="var">perm_pos_list</span> <span class="id" title="var">qs</span> -&gt; <span class="id" title="var">perm_pos_list</span> (<span class="id" title="var">q</span> :: <span class="id" title="var">qs</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_pos_list_app</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> <span class="id" title="var">xs</span> -&gt; <span class="id" title="var">perm_pos_list</span> <span class="id" title="var">ys</span> -&gt; <span class="id" title="var">perm_pos_list</span> (<span class="id" title="var">xs</span> ++ <span class="id" title="var">ys</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_pos_list_assoc_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">q3</span> <span class="id" title="var">qs</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> [<span class="id" title="var">q2</span>; <span class="id" title="var">q3</span>] -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> (<span class="id" title="var">q1</span> :: <span class="id" title="var">q2</span> + <span class="id" title="var">q3</span> :: <span class="id" title="var">qs</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> (<span class="id" title="var">q1</span> + <span class="id" title="var">q2</span> :: <span class="id" title="var">q3</span> :: <span class="id" title="var">qs</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_pos_list_assoc_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">q3</span> <span class="id" title="var">qs</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> [<span class="id" title="var">q1</span>; <span class="id" title="var">q2</span>] -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> (<span class="id" title="var">q1</span> + <span class="id" title="var">q2</span> :: <span class="id" title="var">q3</span> :: <span class="id" title="var">qs</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> (<span class="id" title="var">q1</span> :: <span class="id" title="var">q2</span> + <span class="id" title="var">q3</span> :: <span class="id" title="var">qs</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_pos_list_set_remove</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">xs</span> <span class="id" title="var">x</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> <span class="id" title="var">xs</span> -&gt; <span class="id" title="var">perm_pos_list</span> (<span class="id" title="var">set_remove</span> <span class="id" title="var">Qc_eq_dec</span> <span class="id" title="var">x</span> <span class="id" title="var">xs</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_pos_list_sublist</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">sublist</span> <span class="id" title="var">Qc_eq_dec</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span> -&gt; <span class="id" title="var">perm_pos_list</span> <span class="id" title="var">ys</span> -&gt; <span class="id" title="var">perm_pos_list</span> <span class="id" title="var">xs</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab63"></a><h3 class="section">Addition</h3>
+
+<div class="paragraph"> </div>
+
+ The <i>addition</i> of a sequence of fractional permissions is defined as classical summation. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Fixpoint</span> <span class="id" title="var">perm_add_list</span> (<span class="id" title="var">xs</span> : <span class="id" title="var">list</span> <span class="id" title="var">Qc</span>) : <span class="id" title="var">Qc</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">xs</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">nil</span> =&gt; 0<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">q</span> :: <span class="id" title="var">xs'</span> =&gt; <span class="id" title="var">q</span> + <span class="id" title="var">perm_add_list</span> <span class="id" title="var">xs'</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> &quot;∑ xs" := (<span class="id" title="var">perm_add_list</span> <span class="id" title="var">xs</span>) (<span class="id" title="var">only</span> <span class="id" title="var">printing</span>, <span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_add_list_permutation</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">Permutation</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span> -&gt; <span class="id" title="var">perm_add_list</span> <span class="id" title="var">xs</span> = <span class="id" title="var">perm_add_list</span> <span class="id" title="var">ys</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">perm_add_list</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> @<span class="id" title="var">Permutation</span> <span class="id" title="var">Qc</span> ==&gt; <span class="id" title="var">eq</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">perm_add_list_permut_mor</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_add_list_single</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q</span>, <span class="id" title="var">perm_add_list</span> [<span class="id" title="var">q</span>] = <span class="id" title="var">q</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Rewrite</span> <span class="id" title="var">perm_add_list_single</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_add_list_nonneg</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">qs</span>, <span class="id" title="var">perm_pos_list</span> <span class="id" title="var">qs</span> -&gt; 0 &lt;= <span class="id" title="var">perm_add_list</span> <span class="id" title="var">qs</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_add_list_add_left</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">qs</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_add_list</span> (<span class="id" title="var">q1</span> :: <span class="id" title="var">q2</span> :: <span class="id" title="var">qs</span>) = <span class="id" title="var">perm_add_list</span> (<span class="id" title="var">q1</span> + <span class="id" title="var">q2</span> :: <span class="id" title="var">qs</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_add_list_add</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">qs1</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">qs2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_add_list</span> (<span class="id" title="var">qs1</span> ++ <span class="id" title="var">q1</span> :: <span class="id" title="var">q2</span> :: <span class="id" title="var">qs2</span>) = <span class="id" title="var">perm_add_list</span> (<span class="id" title="var">qs1</span> ++ <span class="id" title="var">q1</span> + <span class="id" title="var">q2</span> :: <span class="id" title="var">qs2</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_add_list_left</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span> <span class="id" title="var">xs</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_add_list</span> (<span class="id" title="var">x</span> :: <span class="id" title="var">xs</span>) = <span class="id" title="var">x</span> + <span class="id" title="var">perm_add_list</span> <span class="id" title="var">xs</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_add_list_set_remove</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">qs</span> <span class="id" title="var">q</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">set_In</span> <span class="id" title="var">q</span> <span class="id" title="var">qs</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_add_list</span> (<span class="id" title="var">set_remove</span> <span class="id" title="var">Qc_eq_dec</span> <span class="id" title="var">q</span> <span class="id" title="var">qs</span>) = <span class="id" title="var">perm_add_list</span> <span class="id" title="var">qs</span> + - <span class="id" title="var">q</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_add_list_sublist</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">sublist</span> <span class="id" title="var">Qc_eq_dec</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> <span class="id" title="var">ys</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_add_list</span> <span class="id" title="var">xs</span> &lt;= <span class="id" title="var">perm_add_list</span> <span class="id" title="var">ys</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab64"></a><h3 class="section">Disjointness</h3>
+
+<div class="paragraph"> </div>
+
+ A sequence of fractional permissions is <i>disjoint</i> if all the rationals are positive and
+    the sum of all rationals in the list does not exceed one. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">qs</span> : <span class="id" title="var">list</span> <span class="id" title="var">Qc</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> <span class="id" title="var">qs</span> /\ <span class="id" title="var">perm_add_list</span> <span class="id" title="var">qs</span> &lt;= 1.<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> &quot;⫡ xs" := (<span class="id" title="var">perm_disj_list</span> <span class="id" title="var">xs</span>) (<span class="id" title="var">only</span> <span class="id" title="var">printing</span>, <span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_permutation</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">Permutation</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span> -&gt; <span class="id" title="var">perm_disj_list</span> <span class="id" title="var">xs</span> -&gt; <span class="id" title="var">perm_disj_list</span> <span class="id" title="var">ys</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">perm_disj_list</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> @<span class="id" title="var">Permutation</span> <span class="id" title="var">Qc</span> ==&gt; <span class="id" title="var">iff</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">perm_disj_list_permut_mor</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_single</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q</span>, <span class="id" title="var">perm_disj_list</span> [<span class="id" title="var">q</span>] &lt;-&gt; <span class="id" title="var">perm_valid</span> <span class="id" title="var">q</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">perm_disj_list_single</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_binary</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> [<span class="id" title="var">q1</span>; <span class="id" title="var">q2</span>] &lt;-&gt; <span class="id" title="var">perm_disj</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_tail</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q</span> <span class="id" title="var">qs</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">q</span> :: <span class="id" title="var">qs</span>) -&gt; <span class="id" title="var">perm_disj_list</span> <span class="id" title="var">qs</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_sub_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">xs</span> ++ <span class="id" title="var">ys</span>) -&gt; <span class="id" title="var">perm_disj_list</span> <span class="id" title="var">ys</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_sub_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">xs</span> ++ <span class="id" title="var">ys</span>) -&gt; <span class="id" title="var">perm_disj_list</span> <span class="id" title="var">xs</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_remove</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">xs</span> ++ <span class="id" title="var">q</span> :: <span class="id" title="var">ys</span>) -&gt; <span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">xs</span> ++ <span class="id" title="var">ys</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_remove_list</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span> <span class="id" title="var">zs</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">xs</span> ++ <span class="id" title="var">ys</span> ++ <span class="id" title="var">zs</span>) -&gt; <span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">xs</span> ++ <span class="id" title="var">zs</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_add_left</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">qs</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">q1</span> :: <span class="id" title="var">q2</span> :: <span class="id" title="var">qs</span>) -&gt; <span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">q1</span> + <span class="id" title="var">q2</span> :: <span class="id" title="var">qs</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_add</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">qs1</span> <span class="id" title="var">qs2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">qs1</span> ++ <span class="id" title="var">q1</span> :: <span class="id" title="var">q2</span> :: <span class="id" title="var">qs2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">qs1</span> ++ <span class="id" title="var">q1</span> + <span class="id" title="var">q2</span> :: <span class="id" title="var">qs2</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_valid_head</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q</span> <span class="id" title="var">qs</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">q</span> :: <span class="id" title="var">qs</span>) -&gt; <span class="id" title="var">perm_valid</span> <span class="id" title="var">q</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_valid</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">qs</span>, <span class="id" title="var">perm_disj_list</span> <span class="id" title="var">qs</span> -&gt; <span class="id" title="var">perm_valid_list</span> <span class="id" title="var">qs</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_pos</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">qs</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> <span class="id" title="var">qs</span> -&gt; <span class="id" title="var">perm_pos_list</span> <span class="id" title="var">qs</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_elim_left</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">qs</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> [<span class="id" title="var">q1</span>; <span class="id" title="var">q2</span>] -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">q1</span> + <span class="id" title="var">q2</span> :: <span class="id" title="var">qs</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">q1</span> :: <span class="id" title="var">q2</span> :: <span class="id" title="var">qs</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_elim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">qs1</span> <span class="id" title="var">qs2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> [<span class="id" title="var">q1</span>; <span class="id" title="var">q2</span>] -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">qs1</span> ++ <span class="id" title="var">q1</span> + <span class="id" title="var">q2</span> :: <span class="id" title="var">qs2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">qs1</span> ++ <span class="id" title="var">q1</span> :: <span class="id" title="var">q2</span> :: <span class="id" title="var">qs2</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_elim_remove_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">qs1</span> <span class="id" title="var">qs2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> [<span class="id" title="var">q1</span>; <span class="id" title="var">q2</span>] -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">qs1</span> ++ <span class="id" title="var">q1</span> + <span class="id" title="var">q2</span> :: <span class="id" title="var">qs2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">qs1</span> ++ <span class="id" title="var">q1</span> :: <span class="id" title="var">qs2</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_elim_remove_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">qs1</span> <span class="id" title="var">qs2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> [<span class="id" title="var">q1</span>; <span class="id" title="var">q2</span>] -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">qs1</span> ++ <span class="id" title="var">q1</span> + <span class="id" title="var">q2</span> :: <span class="id" title="var">qs2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">qs1</span> ++ <span class="id" title="var">q2</span> :: <span class="id" title="var">qs2</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_assoc_left</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">q3</span> <span class="id" title="var">qs</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> [<span class="id" title="var">q2</span>; <span class="id" title="var">q3</span>] -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">q1</span> :: <span class="id" title="var">q2</span> + <span class="id" title="var">q3</span> :: <span class="id" title="var">qs</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">q1</span> + <span class="id" title="var">q2</span> :: <span class="id" title="var">q3</span> :: <span class="id" title="var">qs</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_assoc</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">q3</span> <span class="id" title="var">qs1</span> <span class="id" title="var">qs2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_pos_list</span> [<span class="id" title="var">q2</span>; <span class="id" title="var">q3</span>] -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">qs1</span> ++ <span class="id" title="var">q1</span> :: <span class="id" title="var">q2</span> + <span class="id" title="var">q3</span> :: <span class="id" title="var">qs2</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">qs1</span> ++ <span class="id" title="var">q1</span> + <span class="id" title="var">q2</span> :: <span class="id" title="var">q3</span> :: <span class="id" title="var">qs2</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_sublist</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">sublist</span> <span class="id" title="var">Qc_eq_dec</span> <span class="id" title="var">xs</span> <span class="id" title="var">ys</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> <span class="id" title="var">ys</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> <span class="id" title="var">xs</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_lt</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">xs</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_valid</span> <span class="id" title="var">x</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">x</span> &lt; <span class="id" title="var">y</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">y</span> :: <span class="id" title="var">xs</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">x</span> :: <span class="id" title="var">xs</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">perm_disj_list_le</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">xs</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_valid</span> <span class="id" title="var">x</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">x</span> &lt;= <span class="id" title="var">y</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">y</span> :: <span class="id" title="var">xs</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list</span> (<span class="id" title="var">x</span> :: <span class="id" title="var">xs</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">permlist_solve1_with</span> <span class="id" title="var">id</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| [ <span class="id" title="var">H</span> : <span class="id" title="var">perm_disj_list</span> ?<span class="id" title="var">X</span> |- <span class="id" title="var">perm_disj_list</span> ?<span class="id" title="var">Y</span> ] =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">H</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">id</span> =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_permutation</span> <span class="id" title="keyword">with</span> <span class="id" title="var">X</span>; <span class="id" title="tactic">auto</span>; <span class="id" title="var">list_permutation</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">fail</span> "permlist_solve can not solve this system"<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| [ |- <span class="id" title="var">_</span> ] =&gt; <span class="id" title="tactic">fail</span> "permlist_solve can not be applied"<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">permlist_solve1</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| [ <span class="id" title="var">H</span> : <span class="id" title="var">perm_disj_list</span> ?<span class="id" title="var">X</span> |- <span class="id" title="var">perm_disj_list</span> ?<span class="id" title="var">Y</span> ] =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">permlist_solve1_with</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| [ |- <span class="id" title="var">_</span> ] =&gt; <span class="id" title="tactic">fail</span> "permlist_solve can not be applied"<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">permlist_solve2_with</span> <span class="id" title="var">id</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| [ <span class="id" title="var">H</span> : <span class="id" title="var">perm_disj_list</span> ?<span class="id" title="var">X</span> |- <span class="id" title="var">perm_disj_list</span> ?<span class="id" title="var">Y</span> ] =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">H</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">id</span> =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_sublist</span> <span class="id" title="keyword">with</span> <span class="id" title="var">X</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<span class="id" title="tactic">repeat</span> (<span class="id" title="var">simpls</span>; <span class="id" title="var">desf</span>; <span class="id" title="tactic">intuition</span>)|<span class="id" title="tactic">auto</span>];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">fail</span> "permlist_solve can not solve this system"<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| [ |- <span class="id" title="var">_</span> ] =&gt; <span class="id" title="tactic">fail</span> "permlist_solve can not be applied"<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">permlist_solve2</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| [ <span class="id" title="var">H</span> : <span class="id" title="var">perm_disj_list</span> ?<span class="id" title="var">X</span> |- <span class="id" title="var">perm_disj_list</span> ?<span class="id" title="var">Y</span> ] =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">permlist_solve2_with</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| [ |- <span class="id" title="var">_</span> ] =&gt; <span class="id" title="tactic">fail</span> "permlist_solve can not be applied"<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">permlist_solve</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">try</span> <span class="id" title="var">permlist_solve1</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">try</span> <span class="id" title="var">permlist_solve2</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">fail</span> "permlist_solve can not solve this system".<br/>
+
+<br/>
+<span class="id" title="keyword">Tactic Notation</span> "permlist_solve" "with" <span class="id" title="var">ident</span>(<span class="id" title="var">H</span>) :=<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">try</span> <span class="id" title="var">permlist_solve1_with</span> <span class="id" title="var">H</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">try</span> <span class="id" title="var">permlist_solve2_with</span> <span class="id" title="var">H</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">fail</span> "permlist_solve can not solve this system".<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">perm_disj_list_split</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[])(<span class="id" title="var">qs2</span>:=[]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">a</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[])(<span class="id" title="var">qs2</span>:=[<span class="id" title="var">a</span>]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">a</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[<span class="id" title="var">a</span>])(<span class="id" title="var">qs2</span>:=[]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[])(<span class="id" title="var">qs2</span>:=[<span class="id" title="var">a</span>;<span class="id" title="var">b</span>]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">a</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">b</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[<span class="id" title="var">a</span>])(<span class="id" title="var">qs2</span>:=[<span class="id" title="var">b</span>]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[<span class="id" title="var">a</span>;<span class="id" title="var">b</span>])(<span class="id" title="var">qs2</span>:=[]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[])(<span class="id" title="var">qs2</span>:=[<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">a</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[<span class="id" title="var">a</span>])(<span class="id" title="var">qs2</span>:=[<span class="id" title="var">b</span>;<span class="id" title="var">c</span>]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">c</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[<span class="id" title="var">a</span>;<span class="id" title="var">b</span>])(<span class="id" title="var">qs2</span>:=[<span class="id" title="var">c</span>]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>])(<span class="id" title="var">qs2</span>:=[]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[])(<span class="id" title="var">qs2</span>:=[<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">a</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[<span class="id" title="var">a</span>])(<span class="id" title="var">qs2</span>:=[<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[<span class="id" title="var">a</span>;<span class="id" title="var">b</span>])(<span class="id" title="var">qs2</span>:=[<span class="id" title="var">c</span>;<span class="id" title="var">d</span>]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">d</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>])(<span class="id" title="var">qs2</span>:=[<span class="id" title="var">d</span>]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>])(<span class="id" title="var">qs2</span>:=[]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>;?<span class="id" title="var">e</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[])(<span class="id" title="var">qs2</span>:=[<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>;<span class="id" title="var">e</span>]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">a</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>;?<span class="id" title="var">e</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[<span class="id" title="var">a</span>])(<span class="id" title="var">qs2</span>:=[<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>;<span class="id" title="var">e</span>]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>;?<span class="id" title="var">e</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[<span class="id" title="var">a</span>;<span class="id" title="var">b</span>])(<span class="id" title="var">qs2</span>:=[<span class="id" title="var">c</span>;<span class="id" title="var">d</span>;<span class="id" title="var">e</span>]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">d</span>;?<span class="id" title="var">e</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>])(<span class="id" title="var">qs2</span>:=[<span class="id" title="var">d</span>;<span class="id" title="var">e</span>]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">e</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>])(<span class="id" title="var">qs2</span>:=[<span class="id" title="var">e</span>]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="var">perm_disj_list</span> [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>;?<span class="id" title="var">e</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_add</span> <span class="id" title="keyword">with</span> (<span class="id" title="var">qs1</span>:=[<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>;<span class="id" title="var">e</span>])(<span class="id" title="var">qs2</span>:=[]); <span class="id" title="tactic">simpl</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| [ |- <span class="id" title="var">_</span> ] =&gt; <span class="id" title="tactic">fail</span> "perm_disj_list_split can not be applied."<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">perm_disj_list_split_in</span> <span class="id" title="var">id</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">H</span> : <span class="id" title="var">perm_disj_list</span> ?<span class="id" title="var">T</span> |- <span class="id" title="var">_</span> =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">H</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">id</span> =&gt; <span class="id" title="keyword">match</span> <span class="id" title="var">T</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [] [] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">a</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [] [<span class="id" title="var">a</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [<span class="id" title="var">a</span>] [] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [] [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">b</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [<span class="id" title="var">a</span>] [<span class="id" title="var">b</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>] [] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [] [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [<span class="id" title="var">a</span>] [<span class="id" title="var">b</span>;<span class="id" title="var">c</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">c</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>] [<span class="id" title="var">c</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>] [] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [] [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [<span class="id" title="var">a</span>] [<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>] [<span class="id" title="var">c</span>;<span class="id" title="var">d</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">d</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>] [<span class="id" title="var">d</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>] [] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>;?<span class="id" title="var">e</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [] [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>;<span class="id" title="var">e</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>;?<span class="id" title="var">e</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [<span class="id" title="var">a</span>] [<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>;<span class="id" title="var">e</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>;?<span class="id" title="var">e</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>] [<span class="id" title="var">c</span>;<span class="id" title="var">d</span>;<span class="id" title="var">e</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">d</span>;?<span class="id" title="var">e</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>] [<span class="id" title="var">d</span>;<span class="id" title="var">e</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>;?<span class="id" title="var">e</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>] [<span class="id" title="var">e</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>;?<span class="id" title="var">e</span>;?<span class="id" title="var">q1</span>+?<span class="id" title="var">q2</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_elim</span> <span class="id" title="keyword">with</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>;<span class="id" title="var">e</span>] [] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">auto</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span> =&gt; <span class="id" title="tactic">fail</span> "perm_disj_list_split_in can not be applied."<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span> =&gt; <span class="id" title="tactic">fail</span> "perm_disj_list_split_in can not be applied."<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| [ |- <span class="id" title="var">_</span> ] =&gt; <span class="id" title="tactic">fail</span> "perm_disj_list_split_in can not be applied."<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Tactic Notation</span> "permlist_split" := <span class="id" title="var">perm_disj_list_split</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Tactic Notation</span> "permlist_split" "in" <span class="id" title="var">ident</span>(<span class="id" title="var">H</span>) :=<br/>
+&nbsp;&nbsp;<span class="id" title="var">perm_disj_list_split_in</span> <span class="id" title="var">H</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">try</span> (<span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_pos</span>; <span class="id" title="tactic">clear</span> <span class="id" title="var">H</span>; <span class="id" title="var">permlist_solve</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">perm_disj_list_remove</span> <span class="id" title="var">q</span> <span class="id" title="var">id</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">H</span> : <span class="id" title="var">perm_disj_list</span> ?<span class="id" title="var">T</span> |- <span class="id" title="var">_</span> =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">H</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">id</span> =&gt; <span class="id" title="keyword">match</span> <span class="id" title="var">T</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [<span class="id" title="var">q</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [] [<span class="id" title="var">q</span>] [] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [<span class="id" title="var">q</span>;?<span class="id" title="var">a</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [] [<span class="id" title="var">q</span>] [<span class="id" title="var">a</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;<span class="id" title="var">q</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [<span class="id" title="var">a</span>] [<span class="id" title="var">q</span>] [] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [<span class="id" title="var">q</span>;?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [] [<span class="id" title="var">q</span>] [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;<span class="id" title="var">q</span>;?<span class="id" title="var">b</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [<span class="id" title="var">a</span>] [<span class="id" title="var">q</span>] [<span class="id" title="var">b</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;<span class="id" title="var">q</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>] [<span class="id" title="var">q</span>] [] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [<span class="id" title="var">q</span>;?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [] [<span class="id" title="var">q</span>] [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;<span class="id" title="var">q</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [<span class="id" title="var">a</span>] [<span class="id" title="var">q</span>] [<span class="id" title="var">b</span>;<span class="id" title="var">c</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;<span class="id" title="var">q</span>;?<span class="id" title="var">c</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>] [<span class="id" title="var">q</span>] [<span class="id" title="var">c</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;<span class="id" title="var">q</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>] [<span class="id" title="var">q</span>] [] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [<span class="id" title="var">q</span>;?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [] [<span class="id" title="var">q</span>] [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;<span class="id" title="var">q</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [<span class="id" title="var">a</span>] [<span class="id" title="var">q</span>] [<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;<span class="id" title="var">q</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>] [<span class="id" title="var">q</span>] [<span class="id" title="var">c</span>;<span class="id" title="var">d</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;<span class="id" title="var">q</span>;?<span class="id" title="var">d</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>] [<span class="id" title="var">q</span>] [<span class="id" title="var">d</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>;<span class="id" title="var">q</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>] [<span class="id" title="var">q</span>] [] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [<span class="id" title="var">q</span>;?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>;?<span class="id" title="var">e</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [] [<span class="id" title="var">q</span>] [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>;<span class="id" title="var">e</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;<span class="id" title="var">q</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>;?<span class="id" title="var">e</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [<span class="id" title="var">a</span>] [<span class="id" title="var">q</span>] [<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>;<span class="id" title="var">e</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;<span class="id" title="var">q</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>;?<span class="id" title="var">e</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>] [<span class="id" title="var">q</span>] [<span class="id" title="var">c</span>;<span class="id" title="var">d</span>;<span class="id" title="var">e</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;<span class="id" title="var">q</span>;?<span class="id" title="var">d</span>;?<span class="id" title="var">e</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>] [<span class="id" title="var">q</span>] [<span class="id" title="var">d</span>;<span class="id" title="var">e</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>;<span class="id" title="var">q</span>;?<span class="id" title="var">e</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>] [<span class="id" title="var">q</span>] [<span class="id" title="var">e</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [?<span class="id" title="var">a</span>;?<span class="id" title="var">b</span>;?<span class="id" title="var">c</span>;?<span class="id" title="var">d</span>;?<span class="id" title="var">e</span>;<span class="id" title="var">q</span>] =&gt; <span class="id" title="tactic">apply</span> <span class="id" title="var">perm_disj_list_remove_list</span> <span class="id" title="keyword">with</span> [<span class="id" title="var">a</span>;<span class="id" title="var">b</span>;<span class="id" title="var">c</span>;<span class="id" title="var">d</span>;<span class="id" title="var">e</span>] [<span class="id" title="var">q</span>] [] <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span> =&gt; <span class="id" title="tactic">fail</span> "perm_disj_list_remove does not apply here."<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span> =&gt; <span class="id" title="tactic">fail</span> "perm_disj_list_remove does not apply here."<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| [ |- <span class="id" title="var">_</span> ] =&gt; <span class="id" title="tactic">fail</span> "perm_disj_list_remove does not apply here."<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Tactic Notation</span> "permlist_remove" <span class="id" title="keyword">constr</span>(<span class="id" title="var">q</span>) "in" <span class="id" title="var">ident</span>(<span class="id" title="var">H</span>) := <span class="id" title="var">perm_disj_list_remove</span> <span class="id" title="var">q</span> <span class="id" title="var">H</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

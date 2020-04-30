@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>CSL with process-algebraic abstractions | This page contains the documentation of the Coq formalisation of a CSL program logic extended with process-algebraic program abstractions.</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="CSL with process-algebraic abstractions" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This page contains the documentation of the Coq formalisation of a CSL program logic extended with process-algebraic program abstractions." />
+<meta property="og:description" content="This page contains the documentation of the Coq formalisation of a CSL program logic extended with process-algebraic program abstractions." />
+<meta property="og:site_name" content="CSL with process-algebraic abstractions" />
+<script type="application/ld+json">
+{"description":"This page contains the documentation of the Coq formalisation of a CSL program logic extended with process-algebraic program abstractions.","@type":"WebSite","headline":"CSL with process-algebraic abstractions","name":"CSL with process-algebraic abstractions","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="assets/main.css"></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">CSL with process-algebraic abstractions</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+        
+        <div class="trigger">
+          <a class="page-link" href="https://github.com/utwente-fmt/csl-abstractions" target="_blank">Github</a>
+        </div>
+
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="home"><h1 id="csl-with-process-algebraic-abstractions">CSL with process-algebraic abstractions</h1>
+<p>This repository hosts the formalisation and soundness proofs of the CSL program logic extended with process-algebraic program abstractions and fractional permissions, accompanying the Applied Sciencies journal article <em>“An Abstraction Technique for Verifying Shared-Memory Concurrency”</em>.</p>
+
+<p>This work is a generalisation of the work in <a href="https://www.pm.inf.ethz.ch/people/personal/woortwijn-pers.html" target="_blank">Wytse Oortwijn</a>’s PhD Thesis titled <a href="https://doi.org/10.3990/1.9789036548984" target="_blank"><em>Deductive Techniques for Model-Based Concurrency Verification</em></a>, and combines Chapters 5 and 7 into a single logical framework. Moreover, it extends an earlier VMCAI’20 article titled <a href="https://doi.org/10.1007/978-3-030-39322-9_19" target="_blank"><em>“Practical Abstractions for Automated Verification of Shared-Memory Concurrency”</em></a>, which covers Chapter 5 of Wytse’s Thesis.</p>
+
+<p>The program logic has proof rules for verifying whether a program adheres to a process-algebraic abstraction, that specifies how segments of the program heap are allowed to evolve over time. Moreover, these abstractions allow proving (safety) properties over the evolution of the heap that are difficult to establish without the use of program abstractions (e.g., due to advanced program constructs like handling threads and locks).</p>
+
+<p>This logic can be used to reason about concurrent and distributed, possibly non-terminating, software. The soundness proof is mechanised with the Coq proof assistant, version 8.11.0.</p>
+
+<h2 id="structure-and-documentation">Structure and documentation</h2>
+
+<p>
+  The full Coq formalisation can be found on
+  <a href="https://github.com/utwente-fmt/csl-abstractions" target="_blank">Github</a>.
+  The main files are:
+</p>
+
+<ul>
+  <li><a href="Prelude.html" target="_blank"><strong>Prelude.v</strong></a>: Defines the syntactic and semantic domains on which the formalisation is build, e.g., <code class="highlighter-rouge">Var</code>, <code class="highlighter-rouge">Val</code> and <code class="highlighter-rouge">ProcVar</code>. Also contains some preliminary definitions and results.</li>
+  <li><a href="Process.html" target="_blank"><strong>Process.v</strong></a>: The theory of process-algebraic program abstractions. Contains the syntax and semantics of the process algebra language, a definition of bisimulation, a proof that bisimilarity is an equivalence relation as well as a congruence for all connectives in the language, and soundness of an axiomatisation for the process language.</li>
+  <li><a href="Programs.html" target="_blank"><strong>Programs.v</strong></a>: The syntax and semantics of the programming language. Also contains the fault semantics, ghost semantics, and hybrid processes.</li>
+  <li><a href="Permissions.html" target="_blank"><strong>Permissions.v</strong></a>: Contains properties on (validity and disjointness of) fractional permissions.</li>
+  <li><a href="Heaps.html" target="_blank"><strong>Heaps.v</strong></a>: Contains definitions and properties on program heaps and permission heaps.</li>
+  <li><a href="ProcMap.html" target="_blank"><strong>ProcMap.v</strong></a>: Contains definitions and properties on process maps.</li>
+  <li><a href="Assertions.html" target="_blank"><strong>Assertions.v</strong></a>: Defines the syntax and semantics of the assertion language. Also contains logical entailment as well as soundness proofs of the entailment rules of the logic.</li>
+  <li><a href="Soundness.html" target="_blank"><strong>Soundness.v</strong></a>: Defines adequacy (i.e., what it means for a program to execute safely), the semantic meaning of Hoare triples, and contains the actual soundness proof of the program logic.</li>
+</ul>
+
+<p>If one wishes to study the formalisation it is recommended to study the files in the order shown above, and perhaps to only skim over <a href="Heaps.html" target="_blank"><strong>Heaps.v</strong></a> and <a href="ProcMap.html" target="_blank"><strong>ProcMap.v</strong></a> and revisit them whenever needed.</p>
+
+<p>The other files in the formalisation are:</p>
+
+<ul>
+  <li><a href="HeapSolver.html" target="_blank"><strong>HeapSolver.v</strong></a>: Contains tactics that provide more proof automation for working with heaps.</li>
+  <li><a href="PermSolver.html" target="_blank"><strong>PermSolver.v</strong></a>: Contains tactics that provide more proof automation for working with fractional permissions.</li>
+  <li><a href="ProcMapSolver.html" target="_blank"><strong>ProcMapSolver.v</strong></a>: Contains tactics that provide more proof automation for working with process maps.</li>
+</ul>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">CSL with process-algebraic abstractions</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">CSL with process-algebraic abstractions</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2">Github: <br /><ul class="social-media-list"><li><a href="https://github.com/utwente-fmt/csl-abstractions"><span class="username">csl-abstractions</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>This page contains the documentation of the Coq formalisation of a CSL program logic extended with process-algebraic program abstractions.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

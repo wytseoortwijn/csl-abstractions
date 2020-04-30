@@ -1,0 +1,1471 @@
+\documentclass[12pt]{report}
+\usepackage[]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{fullpage}
+\usepackage{coqdoc}
+\usepackage{amsmath,amssymb}
+\usepackage{url}
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% This file has been automatically generated with the command
+%% coqdoc -q -g --latex -o Soundness.tex Soundness.v 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\coqlibrary{Soundness}{Library }{Soundness}
+
+\begin{coqdoccode}
+\coqdocnoindent
+\coqdockw{Require} \coqdockw{Import} \coqdocvar{Assertions}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Require} \coqdockw{Import} \coqdocvar{HahnBase}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Require} \coqdockw{Import} \coqdocvar{Heaps}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Require} \coqdockw{Import} \coqdocvar{HeapSolver}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Require} \coqdockw{Import} \coqdocvar{List}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Require} \coqdockw{Import} \coqdocvar{Permissions}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Require} \coqdockw{Import} \coqdocvar{PermSolver}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Require} \coqdockw{Import} \coqdocvar{Permutation}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Require} \coqdockw{Import} \coqdocvar{PermutationTactic}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Require} \coqdockw{Import} \coqdocvar{Prelude}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Require} \coqdockw{Import} \coqdocvar{Process}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Require} \coqdockw{Import} \coqdocvar{ProcMap}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Require} \coqdockw{Import} \coqdocvar{ProcMapSolver}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Require} \coqdockw{Import} \coqdocvar{Programs}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Require} \coqdockw{Import} \coqdocvar{QArith} \coqdocvar{Qcanon}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Import} \coqdocvar{ListNotations}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Set Implicit Arguments}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\section{Soundness}
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Module} \coqdockw{Type} \coqdocvar{Soundness}\coqdoceol
+\coqdocindent{1.00em}
+(\coqdocvar{domains} : \coqdocvar{Domains})\coqdoceol
+\coqdocindent{1.00em}
+(\coqdocvar{heaps} : \coqdocvar{Heaps} \coqdocvar{domains})\coqdoceol
+\coqdocindent{1.00em}
+(\coqdocvar{hsolver} : \coqdocvar{HeapSolver} \coqdocvar{domains} \coqdocvar{heaps})\coqdoceol
+\coqdocindent{1.00em}
+(\coqdocvar{procs} : \coqdocvar{Processes} \coqdocvar{domains})\coqdoceol
+\coqdocindent{1.00em}
+(\coqdocvar{procmaps} : \coqdocvar{ProcMaps} \coqdocvar{domains} \coqdocvar{heaps} \coqdocvar{procs})\coqdoceol
+\coqdocindent{1.00em}
+(\coqdocvar{progs} : \coqdocvar{Programs} \coqdocvar{domains} \coqdocvar{heaps} \coqdocvar{procs} \coqdocvar{procmaps})\coqdoceol
+\coqdocindent{1.00em}
+(\coqdocvar{pmsolver} : \coqdocvar{ProcMapSolver} \coqdocvar{domains} \coqdocvar{heaps} \coqdocvar{procs} \coqdocvar{procmaps})\coqdoceol
+\coqdocindent{1.00em}
+(\coqdocvar{assns} : \coqdocvar{Assertions} \coqdocvar{domains} \coqdocvar{heaps} \coqdocvar{hsolver} \coqdocvar{procs} \coqdocvar{procmaps} \coqdocvar{progs} \coqdocvar{pmsolver}).\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Export} \coqdocvar{domains} \coqdocvar{heaps} \coqdocvar{hsolver} \coqdocvar{procs} \coqdocvar{procmaps} \coqdocvar{pmsolver} \coqdocvar{progs} \coqdocvar{assns}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsection{Process environments}
+
+
+
+ The remaining theory assumes an \textit{environment of process definitions},
+    which assigns to each (defined) process its precondition. 
+
+ Note that processes do not have postconditions (any longer).
+    Instead, processes have the \coqdocvar{Passert} (or \coqdocvar{HPassert}) constructors
+    to specify that a certain property should hold at that point. 
+
+ So we define process environments simply as a total function
+    \coqdocvar{precondition} that maps any process to its precondition. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Parameter} \coqdocvar{precondition} : \coqdocvar{HProc} \ensuremath{\rightarrow} \coqdocvar{HCond}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Moreover, the remaining theory requires that all defined processes
+    are \textit{safe} (with respect to \coqdocvar{psafe}).  \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Parameter} \coqdocvar{precondition\_safe} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{P} \coqdocvar{s} \coqdocvar{ps},\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{pcond\_eval} (\coqdocvar{cDehybridise} (\coqdocvar{precondition} \coqdocvar{P}) \coqdocvar{s}) \coqdocvar{ps} = \coqdocvar{true} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{psafe} (\coqdocvar{pDehybridise} \coqdocvar{P} \coqdocvar{s}) \coqdocvar{ps}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsection{Adequacy of process maps}
+
+
+
+ The following definition captures what it means
+    for a process map entry \coqdocvar{c} to be \textit{safe}
+    (with respect to some heap \coqdocvar{h}). 
+
+ In particular this means that, if \coqdocvar{c} is occupied,
+    then the underlying process in \coqdocvar{c} is safe with respect
+    to any process store that corresponds with \coqdocvar{h}. This
+    correspondence is needed to connect process-algebraic
+    state to shared program state. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdocvar{pmeSafe} (\coqdocvar{h} : \coqdocvar{Heap})(\coqdocvar{c} : \coqdocvar{ProcMapEntry}) : \coqdockw{Prop} :=\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{match} \coqdocvar{c} \coqdockw{with}\coqdoceol
+\coqdocindent{2.00em}
+\ensuremath{|} \coqdocvar{PEelem} \coqdocvar{\_} \coqdocvar{P} \coqdocvar{xs} \coqdocvar{f} \ensuremath{\Rightarrow}\coqdoceol
+\coqdocindent{4.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{ps},\coqdoceol
+\coqdocindent{5.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{x}, \coqdocvar{In} \coqdocvar{x} \coqdocvar{xs} \ensuremath{\rightarrow} \coqdocvar{h} (\coqdocvar{f} \coqdocvar{x}) = \coqdocvar{Some} (\coqdocvar{ps} \coqdocvar{x})) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{psafe} \coqdocvar{P} \coqdocvar{ps}\coqdoceol
+\coqdocindent{2.00em}
+\ensuremath{|} \coqdocvar{PEfree} \ensuremath{\Rightarrow} \coqdocvar{True}\coqdoceol
+\coqdocindent{2.00em}
+\ensuremath{|} \coqdocvar{PEinvalid} \ensuremath{\Rightarrow} \coqdocvar{False}\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{end}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Safety of process map entries is preserved by bisimilarity. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{pmeSafe\_bisim} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{h} \coqdocvar{c1} \coqdocvar{c2},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmeBisim} \coqdocvar{c1} \coqdocvar{c2} \ensuremath{\rightarrow} \coqdocvar{pmeSafe} \coqdocvar{h} \coqdocvar{c1} \ensuremath{\rightarrow} \coqdocvar{pmeSafe} \coqdocvar{h} \coqdocvar{c2}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Add} \coqdocvar{Parametric} \coqdocvar{Morphism} : \coqdocvar{pmeSafe}\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{with} \coqdocvar{signature} \coqdocvar{eq} ==> \coqdocvar{pmeBisim} ==> \coqdocvar{iff}\coqdoceol
+\coqdocindent{2.00em}
+\coqdockw{as} \coqdocvar{pmeSafe\_bisim\_mor}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Free entries are trivially safe. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{pmeSafe\_iden} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{h}, \coqdocvar{pmeSafe} \coqdocvar{h} \coqdocvar{PEfree}.\coqdoceol
+ \coqdocemptyline
+\end{coqdoccode}
+Safety of process map entries \coqdocvar{c} is stable under replacing
+    heaps that agree on all locations covered by \coqdocvar{c}. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{pmeSafe\_heap\_acc} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{h1} \coqdocvar{h2} \coqdocvar{c},\coqdoceol
+\coqdocindent{2.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{l}, \coqdocvar{In} \coqdocvar{l} (\coqdocvar{pmeProj} \coqdocvar{c}) \ensuremath{\rightarrow} \coqdocvar{h1} \coqdocvar{l} = \coqdocvar{h2} \coqdocvar{l}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmeSafe} \coqdocvar{h1} \coqdocvar{c} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmeSafe} \coqdocvar{h2} \coqdocvar{c}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Safety of process map entries is stable
+    under extending (snapshot) heaps. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{pmeSafe\_subheap} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{h1} \coqdocvar{h2} \coqdocvar{c},\coqdoceol
+\coqdocindent{1.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{l} \coqdocvar{v}, \coqdocvar{h2} \coqdocvar{l} = \coqdocvar{Some} \coqdocvar{v} \ensuremath{\rightarrow} \coqdocvar{h1} \coqdocvar{l} = \coqdocvar{Some} \coqdocvar{v}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmeSafe} \coqdocvar{h1} \coqdocvar{c} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmeSafe} \coqdocvar{h2} \coqdocvar{c}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{pmeSafe\_weaken\_snapshot\_l} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{ph1} \coqdocvar{ph2} \coqdocvar{c},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{phDisj} \coqdocvar{ph1} \coqdocvar{ph2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmeSafe} (\coqdocvar{phSnapshot} (\coqdocvar{phUnion} \coqdocvar{ph1} \coqdocvar{ph2})) \coqdocvar{c} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmeSafe} (\coqdocvar{phSnapshot} \coqdocvar{ph1}) \coqdocvar{c}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{pmeSafe\_weaken\_snapshot\_r} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{ph1} \coqdocvar{ph2} \coqdocvar{c},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{phDisj} \coqdocvar{ph1} \coqdocvar{ph2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmeSafe} (\coqdocvar{phSnapshot} (\coqdocvar{phUnion} \coqdocvar{ph1} \coqdocvar{ph2})) \coqdocvar{c} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmeSafe} (\coqdocvar{phSnapshot} \coqdocvar{ph2}) \coqdocvar{c}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Removing entry information does not invalidate safety. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{pmeSafe\_weaken\_l} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{h} \coqdocvar{c1} \coqdocvar{c2},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmeSafe} \coqdocvar{h} (\coqdocvar{pmeUnion} \coqdocvar{c1} \coqdocvar{c2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmeSafe} \coqdocvar{h} \coqdocvar{c1}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{pmeSafe\_weaken\_r} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{h} \coqdocvar{c1} \coqdocvar{c2},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmeSafe} \coqdocvar{h} (\coqdocvar{pmeUnion} \coqdocvar{c1} \coqdocvar{c2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmeSafe} \coqdocvar{h} \coqdocvar{c2}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Any process map is defined to be \textit{safe} (with respect to some heap)
+    if all its entries are safe with respect to \coqdocvar{pmeSafe}. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdocvar{pmSafe} (\coqdocvar{h} : \coqdocvar{Heap})(\coqdocvar{pm} : \coqdocvar{ProcMap}) : \coqdockw{Prop} :=\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{pid}, \coqdocvar{pmeSafe} \coqdocvar{h} (\coqdocvar{pm} \coqdocvar{pid}).\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+The identity process map is trivially safe. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{pmSafe\_iden} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{h}, \coqdocvar{pmSafe} \coqdocvar{h} \coqdocvar{pmIden}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Bisimilarity preserves safety. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{pmSafe\_bisim} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{h} \coqdocvar{pm1} \coqdocvar{pm2},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmBisim} \coqdocvar{pm1} \coqdocvar{pm2} \ensuremath{\rightarrow} \coqdocvar{pmSafe} \coqdocvar{h} \coqdocvar{pm1} \ensuremath{\rightarrow} \coqdocvar{pmSafe} \coqdocvar{h} \coqdocvar{pm2}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Add} \coqdocvar{Parametric} \coqdocvar{Morphism} : \coqdocvar{pmSafe}\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{with} \coqdocvar{signature} \coqdocvar{eq} ==> \coqdocvar{pmBisim} ==> \coqdocvar{iff}\coqdoceol
+\coqdocindent{2.00em}
+\coqdockw{as} \coqdocvar{pmSafe\_bisim\_mor}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Process map safety is stable under extensions
+    of the (snapshot) heap. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{pmSafe\_subheap} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{h1} \coqdocvar{h2} \coqdocvar{pm},\coqdoceol
+\coqdocindent{2.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{l} \coqdocvar{v}, \coqdocvar{h2} \coqdocvar{l} = \coqdocvar{Some} \coqdocvar{v} \ensuremath{\rightarrow} \coqdocvar{h1} \coqdocvar{l} = \coqdocvar{Some} \coqdocvar{v}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmSafe} \coqdocvar{h1} \coqdocvar{pm} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmSafe} \coqdocvar{h2} \coqdocvar{pm}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{pmSafe\_weaken\_snapshot\_l} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{ph1} \coqdocvar{ph2} \coqdocvar{pm},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{phDisj} \coqdocvar{ph1} \coqdocvar{ph2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmSafe} (\coqdocvar{phSnapshot} (\coqdocvar{phUnion} \coqdocvar{ph1} \coqdocvar{ph2})) \coqdocvar{pm} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmSafe} (\coqdocvar{phSnapshot} \coqdocvar{ph1}) \coqdocvar{pm}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{pmSafe\_weaken\_snapshot\_r} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{ph1} \coqdocvar{ph2} \coqdocvar{pm},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{phDisj} \coqdocvar{ph1} \coqdocvar{ph2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmSafe} (\coqdocvar{phSnapshot} (\coqdocvar{phUnion} \coqdocvar{ph1} \coqdocvar{ph2})) \coqdocvar{pm} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmSafe} (\coqdocvar{phSnapshot} \coqdocvar{ph2}) \coqdocvar{pm}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Removing process map information does not invalidate safety. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{pmSafe\_weaken\_l} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{h} \coqdocvar{pm1} \coqdocvar{pm2},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmSafe} \coqdocvar{h} (\coqdocvar{pmUnion} \coqdocvar{pm1} \coqdocvar{pm2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmSafe} \coqdocvar{h} \coqdocvar{pm1}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{pmSafe\_weaken\_r} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{h} \coqdocvar{pm1} \coqdocvar{pm2},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmSafe} \coqdocvar{h} (\coqdocvar{pmUnion} \coqdocvar{pm1} \coqdocvar{pm2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmSafe} \coqdocvar{h} \coqdocvar{pm2}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsection{Well-structured process maps}
+
+
+
+ A process map \coqdocvar{pm} is defined to be \textit{well-structured}
+    if every heap location \coqdocvar{l} is accessed by at most one entry of \coqdocvar{pm}.
+    This definition therefore implies that all the entries of \coqdocvar{pm}
+    access different heap locations (i.e., disjoint parts of the heap). 
+
+ This definition is important in the soundness argument,
+    since every heap location can be subject to at most one
+    ``active process'', and we need to make this fact explicit,
+    which we do via \coqdocvar{pmWs}. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdocvar{pmWs} (\coqdocvar{pm} : \coqdocvar{ProcMap}) : \coqdockw{Prop} :=\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{p1} \coqdocvar{p2} \coqdocvar{l},\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{In} \coqdocvar{l} (\coqdocvar{pmeProj} (\coqdocvar{pm} \coqdocvar{p1})) \ensuremath{\rightarrow} \coqdocvar{In} \coqdocvar{l} (\coqdocvar{pmeProj} (\coqdocvar{pm} \coqdocvar{p2})) \ensuremath{\rightarrow} \coqdocvar{p1} = \coqdocvar{p2}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Bisimilarity preserves well-structuredness of process maps. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{pmWs\_bisim} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{pm1} \coqdocvar{pm2},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmBisim} \coqdocvar{pm1} \coqdocvar{pm2} \ensuremath{\rightarrow} \coqdocvar{pmWs} \coqdocvar{pm1} \ensuremath{\rightarrow} \coqdocvar{pmWs} \coqdocvar{pm2}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Add} \coqdocvar{Parametric} \coqdocvar{Morphism} : \coqdocvar{pmWs}\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{with} \coqdocvar{signature} \coqdocvar{pmBisim} ==> \coqdocvar{iff} \coqdockw{as} \coqdocvar{pmWs\_mor}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+The identity process map is trivially well-structured. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{pmWs\_iden} : \coqdocvar{pmWs} \coqdocvar{pmIden}.\coqdoceol
+ \coqdocemptyline
+\end{coqdoccode}
+Process map agreement preserves well-structuredness. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{pmWs\_agree} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{pm1} \coqdocvar{pm2},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmAgree} \coqdocvar{pm1} \coqdocvar{pm2} \ensuremath{\rightarrow} \coqdocvar{pmWs} \coqdocvar{pm1} \ensuremath{\rightarrow} \coqdocvar{pmWs} \coqdocvar{pm2}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Add} \coqdocvar{Parametric} \coqdocvar{Morphism} : \coqdocvar{pmWs}\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{with} \coqdocvar{signature} \coqdocvar{pmAgree} ==> \coqdocvar{iff} \coqdockw{as} \coqdocvar{pmWs\_agree\_mor}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Below are several other useful properties
+    of well-structuredness. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{pmWs\_update} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{pm} \coqdocvar{p} \coqdocvar{c},\coqdoceol
+\coqdocindent{2.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{p'} \coqdocvar{l}, \coqdocvar{p} \ensuremath{\not=} \coqdocvar{p'} \ensuremath{\rightarrow} \coqdocvar{In} \coqdocvar{l} (\coqdocvar{pmeProj} \coqdocvar{c}) \ensuremath{\rightarrow} \ensuremath{\lnot} \coqdocvar{In} \coqdocvar{l} (\coqdocvar{pmeProj} (\coqdocvar{pm} \coqdocvar{p'}))) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmWs} \coqdocvar{pm} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmWs} (\coqdocvar{pmUpdate} \coqdocvar{pm} \coqdocvar{p} \coqdocvar{c}).\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsection{Adequacy}
+
+
+
+ The auxiliary predicate \coqdocvar{invariant\_sat} determines
+    whether a resource invariant \coqdocvar{J} is satisfied by the given model
+    in the context of the given program \coqdocvar{C}. If the program is locked,
+    we allow the resource invariant to be arbitrary
+    (as in the proof system the resource invariant then becomes \coqdocvar{Atrue}),
+    but otherwise the model should hold with respect to \coqdocvar{J}. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdocvar{invariant\_sat} (\coqdocvar{ph} : \coqdocvar{PermHeap})(\coqdocvar{pm} : \coqdocvar{ProcMap})(\coqdocvar{s} \coqdocvar{g} : \coqdocvar{Store})(\coqdocvar{C} : \coqdocvar{GhostCmd})(\coqdocvar{J} : \coqdocvar{Assn}) : \coqdockw{Prop} :=\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{cmd\_locked} \coqdocvar{C} \ensuremath{\rightarrow} \coqdocvar{sat} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Fixpoint} \coqdocvar{safe} (\coqdocvar{n} : \coqdocvar{nat})(\coqdocvar{basic} : \coqdockw{Prop})(\coqdocvar{C} : \coqdocvar{GhostCmd})(\coqdocvar{ph} : \coqdocvar{PermHeap})(\coqdocvar{pm} : \coqdocvar{ProcMap})(\coqdocvar{s} \coqdocvar{g} : \coqdocvar{Store})(\coqdocvar{J} \coqdocvar{A} : \coqdocvar{Assn}) : \coqdockw{Prop} :=\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{match} \coqdocvar{n} \coqdockw{with}\coqdoceol
+\coqdocindent{2.00em}
+\ensuremath{|} \coqdocvar{O} \ensuremath{\Rightarrow} \coqdocvar{True}\coqdoceol
+\coqdocindent{2.00em}
+\ensuremath{|} \coqdocvar{S} \coqdocvar{m} \ensuremath{\Rightarrow}\coqdoceol
+\coqdocindent{3.00em}
+\coqdoceol
+\coqdocindent{4.00em}
+(\coqdocvar{C} = \coqdocvar{Cskip} \ensuremath{\rightarrow} \coqdocvar{sat} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{A}) \ensuremath{\land}\coqdoceol
+\coqdocindent{3.00em}
+\coqdoceol
+\coqdocindent{3.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{phF} \coqdocvar{pmF},\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{phDisj} \coqdocvar{ph} \coqdocvar{phF} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{pmDisj} \coqdocvar{pm} \coqdocvar{pmF} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{3.00em}
+\coqdockw{let} \coqdocvar{h} := \coqdocvar{phConcr} (\coqdocvar{phUnion} \coqdocvar{ph} \coqdocvar{phF}) \coqdoctac{in}\coqdoceol
+\coqdocindent{3.00em}
+\coqdockw{let} \coqdocvar{pm'} := \coqdocvar{pmUnion} \coqdocvar{pm} \coqdocvar{pmF} \coqdoctac{in}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{hFinite} \coqdocvar{h} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{pmFinite} \coqdocvar{pm'} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{4.00em}
+\ensuremath{\lnot} \coqdocvar{gfault} \coqdocvar{h} \coqdocvar{pm'} \coqdocvar{s} \coqdocvar{g} \coqdocvar{C}) \ensuremath{\land}\coqdoceol
+\coqdocindent{3.00em}
+\coqdoceol
+\coqdocindent{3.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{l}, \coqdocvar{cmd\_acc} \coqdocvar{C} \coqdocvar{s} \coqdocvar{l} \ensuremath{\rightarrow} \coqdocvar{phcLt} \coqdocvar{PHCfree} (\coqdocvar{ph} \coqdocvar{l})) \ensuremath{\land}\coqdoceol
+\coqdocindent{3.00em}
+\coqdoceol
+\coqdocindent{3.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{l}, \coqdocvar{cmd\_writes} \coqdocvar{C} \coqdocvar{s} \coqdocvar{l} \ensuremath{\rightarrow} \coqdocvar{phcEntire} (\coqdocvar{ph} \coqdocvar{l})) \ensuremath{\land}\coqdoceol
+\coqdocindent{3.00em}
+\coqdoceol
+\coqdocindent{3.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{phJ} \coqdocvar{phF} \coqdocvar{pmJ} \coqdocvar{pmF} \coqdocvar{pmC} \coqdocvar{h'} \coqdocvar{s'} \coqdocvar{C'},\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{phDisj} \coqdocvar{ph} \coqdocvar{phJ} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{phDisj} (\coqdocvar{phUnion} \coqdocvar{ph} \coqdocvar{phJ}) \coqdocvar{phF} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{pmDisj} \coqdocvar{pm} \coqdocvar{pmJ} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{pmDisj} (\coqdocvar{pmUnion} \coqdocvar{pm} \coqdocvar{pmJ}) \coqdocvar{pmF} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{pmBisim} (\coqdocvar{pmUnion} (\coqdocvar{pmUnion} \coqdocvar{pm} \coqdocvar{pmJ}) \coqdocvar{pmF}) \coqdocvar{pmC} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{pmFinite} \coqdocvar{pmC} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{pmWs} \coqdocvar{pmC} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{invariant\_sat} \coqdocvar{phJ} \coqdocvar{pmJ} \coqdocvar{s} \coqdocvar{g} \coqdocvar{C} \coqdocvar{J} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{3.00em}
+\coqdockw{let} \coqdocvar{h} := \coqdocvar{phConcr} (\coqdocvar{phUnion} (\coqdocvar{phUnion} \coqdocvar{ph} \coqdocvar{phJ}) \coqdocvar{phF}) \coqdoctac{in}\coqdoceol
+\coqdocindent{3.00em}
+\coqdockw{let} \coqdocvar{hs} := \coqdocvar{phSnapshot} (\coqdocvar{phUnion} (\coqdocvar{phUnion} \coqdocvar{ph} \coqdocvar{phJ}) \coqdocvar{phF}) \coqdoctac{in}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{hFinite} \coqdocvar{h} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{pmCovers} \coqdocvar{pmC} \coqdocvar{hs} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{pmSafe} \coqdocvar{hs} \coqdocvar{pmC} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{step} \coqdocvar{h} \coqdocvar{s} (\coqdocvar{plain} \coqdocvar{C}) \coqdocvar{h'} \coqdocvar{s'} \coqdocvar{C'} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{3.00em}
+\coqdoctac{\ensuremath{\exists}} \coqdocvar{ph'} \coqdocvar{phJ'},\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{phDisj} \coqdocvar{ph'} \coqdocvar{phJ'} \ensuremath{\land}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{phDisj} (\coqdocvar{phUnion} \coqdocvar{ph'} \coqdocvar{phJ'}) \coqdocvar{phF} \ensuremath{\land}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{phConcr} (\coqdocvar{phUnion} (\coqdocvar{phUnion} \coqdocvar{ph'} \coqdocvar{phJ'}) \coqdocvar{phF}) = \coqdocvar{h'} \ensuremath{\land}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{hFinite} \coqdocvar{h'} \ensuremath{\land}\coqdoceol
+\coqdocindent{4.00em}
+(\coqdocvar{basic} \ensuremath{\rightarrow} \coqdocvar{phJ} = \coqdocvar{phJ'} \ensuremath{\land} \coqdocvar{phSnapshot} \coqdocvar{ph} = \coqdocvar{phSnapshot} \coqdocvar{ph'}) \ensuremath{\land}\coqdoceol
+\coqdocindent{3.00em}
+\coqdoctac{\ensuremath{\exists}} \coqdocvar{pm'} \coqdocvar{pmJ'} \coqdocvar{pmC'},\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{pmDisj} \coqdocvar{pm'} \coqdocvar{pmJ'} \ensuremath{\land}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{pmDisj} (\coqdocvar{pmUnion} \coqdocvar{pm'} \coqdocvar{pmJ'}) \coqdocvar{pmF} \ensuremath{\land}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{pmBisim} (\coqdocvar{pmUnion} (\coqdocvar{pmUnion} \coqdocvar{pm'} \coqdocvar{pmJ'}) \coqdocvar{pmF}) \coqdocvar{pmC'} \ensuremath{\land}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{pmFinite} \coqdocvar{pmC'} \ensuremath{\land}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{pmWs} \coqdocvar{pmC'} \ensuremath{\land}\coqdoceol
+\coqdocindent{4.00em}
+(\coqdocvar{basic} \ensuremath{\rightarrow} \coqdocvar{pmBisim} \coqdocvar{pm} \coqdocvar{pm'} \ensuremath{\land} \coqdocvar{pmBisim} \coqdocvar{pmJ} \coqdocvar{pmJ'}) \ensuremath{\land}\coqdoceol
+\coqdocindent{3.00em}
+\coqdockw{let} \coqdocvar{hs'} := \coqdocvar{phSnapshot} (\coqdocvar{phUnion} (\coqdocvar{phUnion} \coqdocvar{ph'} \coqdocvar{phJ'}) \coqdocvar{phF}) \coqdoctac{in}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{pmCovers} \coqdocvar{pmC'} \coqdocvar{hs'} \ensuremath{\land}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{pmSafe} \coqdocvar{hs'} \coqdocvar{pmC'} \ensuremath{\land}\coqdoceol
+\coqdocindent{3.00em}
+\coqdoctac{\ensuremath{\exists}} \coqdocvar{g'} \coqdocvar{C'{}'},\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{plain} \coqdocvar{C'{}'} = \coqdocvar{C'} \ensuremath{\land}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{gstep} \coqdocvar{h} \coqdocvar{pmC} \coqdocvar{s} \coqdocvar{g} \coqdocvar{C} \coqdocvar{h'} \coqdocvar{pmC'} \coqdocvar{s'} \coqdocvar{g'} \coqdocvar{C'{}'} \ensuremath{\land}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{invariant\_sat} \coqdocvar{phJ'} \coqdocvar{pmJ'} \coqdocvar{s'} \coqdocvar{g'} \coqdocvar{C'{}'} \coqdocvar{J} \ensuremath{\land}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{safe} \coqdocvar{m} \coqdocvar{basic} \coqdocvar{C'{}'} \coqdocvar{ph'} \coqdocvar{pm'} \coqdocvar{s'} \coqdocvar{g'} \coqdocvar{J} \coqdocvar{A})\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{end}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Safety is stable under replacing process maps by bisimilar ones. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{safe\_pmBisim} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm1} \coqdocvar{pm2} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmBisim} \coqdocvar{pm1} \coqdocvar{pm2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm1} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm2} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Safety is stable under replacing resource invariants
+    by equivalent ones. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{safe\_aEquiv\_inv} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{R1} \coqdocvar{R2} \coqdocvar{A},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{aEquiv} \coqdocvar{R1} \coqdocvar{R2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{R1} \coqdocvar{A} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{R2} \coqdocvar{A}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Safety is stable under replacing postconditions by equivalent ones. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{safe\_aEquiv\_post} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{R} \coqdocvar{A1} \coqdocvar{A2},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{phValid} \coqdocvar{ph} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmValid} \coqdocvar{pm} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{aEquiv} \coqdocvar{A1} \coqdocvar{A2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{R} \coqdocvar{A1} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{R} \coqdocvar{A2}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Add} \coqdocvar{Parametric} \coqdocvar{Morphism} : \coqdocvar{safe}\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{with} \coqdocvar{signature} \coqdocvar{eq} ==> \coqdocvar{eq} ==> \coqdocvar{eq} ==> \coqdocvar{eq} ==> \coqdocvar{pmBisim} ==> \coqdocvar{eq} ==> \coqdocvar{eq} ==> \coqdocvar{aEquiv} ==> \coqdocvar{eq} ==> \coqdocvar{iff}\coqdoceol
+\coqdocindent{2.00em}
+\coqdockw{as} \coqdocvar{safe\_bisim\_mor}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Adequacy is monotonic in the number of computation steps. 
+
+ That is, if any configuration is safe for \coqdocvar{n} steps, it
+    must also be safe for less than \coqdocvar{n} steps. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Open} \coqdockw{Scope} \coqdocvar{nat\_scope}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{safe\_mono} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{m} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{m} \ensuremath{\le} \coqdocvar{n} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{m} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Close} \coqdockw{Scope} \coqdocvar{nat\_scope}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+The \coqdocvar{Cskip} program being safe in a certain state
+    means that the postcondition holds in that state. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{safe\_skip} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} (\coqdocvar{S} \coqdocvar{n}) \coqdocvar{basic} \coqdocvar{Cskip} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{sat} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{A}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{safe\_done} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{sat} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{A} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{Cskip} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Any (ghost) store can be replaced by one that agrees on
+    the values of all free variables in the program, resource invariant,
+    and the postcondition. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{safe\_agree} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s1} \coqdocvar{s2} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{sAgree} (\coqdocvar{assn\_fv} \coqdocvar{A}) \coqdocvar{s1} \coqdocvar{s2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{sAgree} (\coqdocvar{assn\_fv} \coqdocvar{J}) \coqdocvar{s1} \coqdocvar{s2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{sAgree} (\coqdocvar{cmd\_fv} \coqdocvar{C}) \coqdocvar{s1} \coqdocvar{s2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s1} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s2} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{safe\_agree\_ghost} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g1} \coqdocvar{g2} \coqdocvar{J} \coqdocvar{A},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{sAgree} (\coqdocvar{assn\_fv} \coqdocvar{A}) \coqdocvar{g1} \coqdocvar{g2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{sAgree} (\coqdocvar{assn\_fv} \coqdocvar{J}) \coqdocvar{g1} \coqdocvar{g2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{sAgree} (\coqdocvar{cmd\_fv} \coqdocvar{C}) \coqdocvar{g1} \coqdocvar{g2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g1} \coqdocvar{J} \coqdocvar{A} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g2} \coqdocvar{J} \coqdocvar{A}.\coqdoceol
+\end{coqdoccode}
+Disjuncts in postconditions can always be introduced. \begin{coqdoccode}
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{safe\_disj\_weaken} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{R} \coqdocvar{A1} \coqdocvar{A2},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{R} \coqdocvar{A1} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{R} (\coqdocvar{Adisj} \coqdocvar{A1} \coqdocvar{A2}).\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsection{Soundness of the proof rules}
+
+
+
+ The meaning of Hoare triples is given by 
+    the following definition. 
+
+ Intuitively \coqdocvar{csl} \coqdocvar{b} \coqdocvar{J} \coqdocvar{A} \coqdocvar{C} \coqdocvar{A'} holds if \coqdocvar{C} is a user program,
+    and moreover that \coqdocvar{C} is safe for any number of reduction steps. 
+
+ The extra \coqdocvar{basic} parameter is purely for technical reasons.
+    Recall that basic programs exclude certain language features
+    such as specification-only commands. It later helps if we explicitly
+    administer whether a \coqdocvar{csl} judgement is used in the context of a
+    basic program. The extra \coqdocvar{basic} parameter is used for just that. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdocvar{csl} (\coqdocvar{basic} : \coqdockw{Prop})(\coqdocvar{J} : \coqdocvar{Assn})(\coqdocvar{A1} : \coqdocvar{Assn})(\coqdocvar{C} : \coqdocvar{GhostCmd})(\coqdocvar{A2} : \coqdocvar{Assn}) : \coqdockw{Prop} :=\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{cmd\_user} \coqdocvar{C} \ensuremath{\land}\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{n} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g},\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{phValid} \coqdocvar{ph} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{pmValid} \coqdocvar{pm} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{pmSafe} (\coqdocvar{phSnapshot} \coqdocvar{ph}) \coqdocvar{pm} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{cmd\_wf} \coqdocvar{C} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{sat} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{A1} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A2}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Any assertion (pre- or postcondition, or resource invariant)
+    can always be replaced by an equivalent one. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Add} \coqdocvar{Parametric} \coqdocvar{Morphism} : \coqdocvar{csl}\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{with} \coqdocvar{signature} \coqdocvar{eq} ==> \coqdocvar{aEquiv} ==> \coqdocvar{aEquiv} ==> \coqdocvar{eq} ==> \coqdocvar{aEquiv} ==> \coqdocvar{iff}\coqdoceol
+\coqdocindent{2.00em}
+\coqdockw{as} \coqdocvar{csl\_aEquiv\_mor}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Any program judgement with an unsatisfiable precondition
+    trivially holds. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{csl\_trivial}  :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{C} \coqdocvar{A},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{cmd\_user} \coqdocvar{C} \ensuremath{\rightarrow} \coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{Afalse} \coqdocvar{C} \coqdocvar{A}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsubsection{Skip rule}
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_skip} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A} \coqdocvar{Cskip} \coqdocvar{A}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsubsection{Sequential composition}
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Open} \coqdockw{Scope} \coqdocvar{nat\_scope}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{safe\_seq} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C1} \coqdocvar{C2} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{A2} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{phValid} \coqdocvar{ph} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmValid} \coqdocvar{pm} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmSafe} (\coqdocvar{phSnapshot} \coqdocvar{ph}) \coqdocvar{pm} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C1} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A1} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{m} \coqdocvar{ph'} \coqdocvar{pm'} \coqdocvar{s'} \coqdocvar{g'},\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{m} \ensuremath{\le} \coqdocvar{n} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{phValid} \coqdocvar{ph'} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{pmValid} \coqdocvar{pm'} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{pmSafe} (\coqdocvar{phSnapshot} \coqdocvar{ph'}) \coqdocvar{pm'} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{sat} \coqdocvar{ph'} \coqdocvar{pm'} \coqdocvar{s'} \coqdocvar{g'} \coqdocvar{A1} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{safe} \coqdocvar{m} \coqdocvar{basic} \coqdocvar{C2} \coqdocvar{ph'} \coqdocvar{pm'} \coqdocvar{s'} \coqdocvar{g'} \coqdocvar{J} \coqdocvar{A2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} (\coqdocvar{Cseq} \coqdocvar{C1} \coqdocvar{C2}) \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A2}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Close} \coqdockw{Scope} \coqdocvar{nat\_scope}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_seq} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{A2} \coqdocvar{A3} \coqdocvar{C1} \coqdocvar{C2},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{C1} \coqdocvar{A2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A2} \coqdocvar{C2} \coqdocvar{A3} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} (\coqdocvar{Cseq} \coqdocvar{C1} \coqdocvar{C2}) \coqdocvar{A3}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsubsection{If-then-else rule}
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{safe\_ite} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{A2} \coqdocvar{B} \coqdocvar{C1} \coqdocvar{C2} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{sat} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{A1} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{2.00em}
+(\coqdocvar{sat} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} (\coqdocvar{Astar} \coqdocvar{A1} (\coqdocvar{Aplain} \coqdocvar{B})) \ensuremath{\rightarrow} \coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C1} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{2.00em}
+(\coqdocvar{sat} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} (\coqdocvar{Astar} \coqdocvar{A1} (\coqdocvar{Aplain} (\coqdocvar{Bnot} \coqdocvar{B}))) \ensuremath{\rightarrow} \coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C2} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} (\coqdocvar{Cite} \coqdocvar{B} \coqdocvar{C1} \coqdocvar{C2}) \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A2}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_ite} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{A2} \coqdocvar{B} \coqdocvar{C1} \coqdocvar{C2},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} (\coqdocvar{Astar} \coqdocvar{A1} (\coqdocvar{Aplain} \coqdocvar{B})) \coqdocvar{C1} \coqdocvar{A2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} (\coqdocvar{Astar} \coqdocvar{A1} (\coqdocvar{Aplain} (\coqdocvar{Bnot} \coqdocvar{B}))) \coqdocvar{C2} \coqdocvar{A2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} (\coqdocvar{Cite} \coqdocvar{B} \coqdocvar{C1} \coqdocvar{C2}) \coqdocvar{A2}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsubsection{While rule}
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{safe\_while} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{B} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} (\coqdocvar{Astar} \coqdocvar{A} (\coqdocvar{Aplain} \coqdocvar{B})) \coqdocvar{C} \coqdocvar{A} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{sat} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{A} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{cmd\_wf} \coqdocvar{C} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} (\coqdocvar{Cwhile} \coqdocvar{B} \coqdocvar{C}) \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} (\coqdocvar{Astar} \coqdocvar{A} (\coqdocvar{Aplain} (\coqdocvar{Bnot} \coqdocvar{B}))).\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_while} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A} \coqdocvar{B} \coqdocvar{C},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} (\coqdocvar{Astar} \coqdocvar{A} (\coqdocvar{Aplain} \coqdocvar{B})) \coqdocvar{C} \coqdocvar{A} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A} (\coqdocvar{Cwhile} \coqdocvar{B} \coqdocvar{C}) (\coqdocvar{Astar} \coqdocvar{A} (\coqdocvar{Aplain} (\coqdocvar{Bnot} \coqdocvar{B}))).\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsubsection{Assign rule}
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{safe\_assign} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A} \coqdocvar{x} \coqdocvar{E} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g},\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{assn\_fv} \coqdocvar{J} \coqdocvar{x} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{sat} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} (\coqdocvar{assn\_subst} \coqdocvar{x} \coqdocvar{E} \coqdocvar{A}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} (\coqdocvar{Cass} \coqdocvar{x} \coqdocvar{E}) \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_assign} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A} \coqdocvar{x} \coqdocvar{E},\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{assn\_fv} \coqdocvar{J} \coqdocvar{x} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} (\coqdocvar{assn\_subst} \coqdocvar{x} \coqdocvar{E} \coqdocvar{A}) (\coqdocvar{Cass} \coqdocvar{x} \coqdocvar{E}) \coqdocvar{A}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsubsection{Rule of consequence}
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{safe\_conseq} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{A2},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{phValid} \coqdocvar{ph} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmValid} \coqdocvar{pm} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmSafe} (\coqdocvar{phSnapshot} \coqdocvar{ph}) \coqdocvar{pm} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{aEntails} \coqdocvar{A1} \coqdocvar{A2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A1} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A2}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_conseq} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{A2} \coqdocvar{A1'} \coqdocvar{A2'} \coqdocvar{C},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{aEntails} \coqdocvar{A1} \coqdocvar{A1'} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{aEntails} \coqdocvar{A2'} \coqdocvar{A2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1'} \coqdocvar{C} \coqdocvar{A2'} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{C} \coqdocvar{A2}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsubsection{Disjunction rule}
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_disj} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{A2} \coqdocvar{A1'} \coqdocvar{A2'} \coqdocvar{C},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{C} \coqdocvar{A1'} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A2} \coqdocvar{C} \coqdocvar{A2'} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} (\coqdocvar{Adisj} \coqdocvar{A1} \coqdocvar{A2}) \coqdocvar{C} (\coqdocvar{Adisj} \coqdocvar{A1'} \coqdocvar{A2'}).\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Corollary} \coqdocvar{rule\_disj\_l} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{A2} \coqdocvar{A3} \coqdocvar{C},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A2} \coqdocvar{C} \coqdocvar{A1} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A3} \coqdocvar{C} \coqdocvar{A1} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} (\coqdocvar{Adisj} \coqdocvar{A2} \coqdocvar{A3}) \coqdocvar{C} \coqdocvar{A1}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Corollary} \coqdocvar{rule\_disj\_r} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{A2} \coqdocvar{A3} \coqdocvar{C},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{C} \coqdocvar{A2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{C} \coqdocvar{A3} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{C} (\coqdocvar{Adisj} \coqdocvar{A2} \coqdocvar{A3}).\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{rule\_disj\_weaken} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{A2} \coqdocvar{A3} \coqdocvar{C},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{C} \coqdocvar{A2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{C} (\coqdocvar{Adisj} \coqdocvar{A2} \coqdocvar{A3}).\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsubsection{Frame rule}
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{safe\_frame} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph1} \coqdocvar{ph2} \coqdocvar{pm1} \coqdocvar{pm2} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{A2},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{phDisj} \coqdocvar{ph1} \coqdocvar{ph2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmDisj} \coqdocvar{pm1} \coqdocvar{pm2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmSafe} (\coqdocvar{phSnapshot} \coqdocvar{ph1}) \coqdocvar{pm1} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{assn\_fv} \coqdocvar{A2}) (\coqdocvar{cmd\_mod} \coqdocvar{C}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{sat} \coqdocvar{ph2} \coqdocvar{pm2} \coqdocvar{s} \coqdocvar{g} \coqdocvar{A2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{ph1} \coqdocvar{pm1} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A1} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C} (\coqdocvar{phUnion} \coqdocvar{ph1} \coqdocvar{ph2}) (\coqdocvar{pmUnion} \coqdocvar{pm1} \coqdocvar{pm2}) \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} (\coqdocvar{Astar} \coqdocvar{A1} \coqdocvar{A2}).\coqdoceol
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_frame} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{A2} \coqdocvar{A3} \coqdocvar{C},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{assn\_fv} \coqdocvar{A3}) (\coqdocvar{cmd\_mod} \coqdocvar{C}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{C} \coqdocvar{A2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} (\coqdocvar{Astar} \coqdocvar{A1} \coqdocvar{A3}) \coqdocvar{C} (\coqdocvar{Astar} \coqdocvar{A2} \coqdocvar{A3}).\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsubsection{Heap reading}
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{rule\_lookup\_std} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{x} \coqdocvar{E1} \coqdocvar{q} \coqdocvar{E2} \coqdocvar{J} \coqdocvar{A},\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{In} \coqdocvar{x} (\coqdocvar{expr\_fv} \coqdocvar{E1}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{In} \coqdocvar{x} (\coqdocvar{expr\_fv} \coqdocvar{E2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{assn\_fv} \coqdocvar{J} \coqdocvar{x} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} (\coqdocvar{Astar} (\coqdocvar{assn\_subst} \coqdocvar{x} \coqdocvar{E2} \coqdocvar{A}) (\coqdocvar{Apointsto} \coqdocvar{PTTstd} \coqdocvar{q} \coqdocvar{E1} \coqdocvar{E2})) (\coqdocvar{Cread} \coqdocvar{x} \coqdocvar{E1}) (\coqdocvar{Astar} \coqdocvar{A} (\coqdocvar{Apointsto} \coqdocvar{PTTstd} \coqdocvar{q} \coqdocvar{E1} \coqdocvar{E2})).\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{rule\_lookup\_proc} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{x} \coqdocvar{E1} \coqdocvar{q} \coqdocvar{E2} \coqdocvar{J} \coqdocvar{A},\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{In} \coqdocvar{x} (\coqdocvar{expr\_fv} \coqdocvar{E1}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{In} \coqdocvar{x} (\coqdocvar{expr\_fv} \coqdocvar{E2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{assn\_fv} \coqdocvar{J} \coqdocvar{x} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} (\coqdocvar{Astar} (\coqdocvar{assn\_subst} \coqdocvar{x} \coqdocvar{E2} \coqdocvar{A}) (\coqdocvar{Apointsto} \coqdocvar{PTTproc} \coqdocvar{q} \coqdocvar{E1} \coqdocvar{E2})) (\coqdocvar{Cread} \coqdocvar{x} \coqdocvar{E1}) (\coqdocvar{Astar} \coqdocvar{A} (\coqdocvar{Apointsto} \coqdocvar{PTTproc} \coqdocvar{q} \coqdocvar{E1} \coqdocvar{E2})).\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{rule\_lookup\_act} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{x} \coqdocvar{E1} \coqdocvar{q} \coqdocvar{E2} \coqdocvar{J} \coqdocvar{A},\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{In} \coqdocvar{x} (\coqdocvar{expr\_fv} \coqdocvar{E1}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{In} \coqdocvar{x} (\coqdocvar{expr\_fv} \coqdocvar{E2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{assn\_fv} \coqdocvar{J} \coqdocvar{x} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} (\coqdocvar{Astar} (\coqdocvar{assn\_subst} \coqdocvar{x} \coqdocvar{E2} \coqdocvar{A}) (\coqdocvar{Apointsto} \coqdocvar{PTTact} \coqdocvar{q} \coqdocvar{E1} \coqdocvar{E2})) (\coqdocvar{Cread} \coqdocvar{x} \coqdocvar{E1}) (\coqdocvar{Astar} \coqdocvar{A} (\coqdocvar{Apointsto} \coqdocvar{PTTact} \coqdocvar{q} \coqdocvar{E1} \coqdocvar{E2})).\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_lookup} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{x} \coqdocvar{E1} \coqdocvar{q} \coqdocvar{E2} \coqdocvar{J} \coqdocvar{A} \coqdocvar{t},\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{In} \coqdocvar{x} (\coqdocvar{expr\_fv} \coqdocvar{E1}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{In} \coqdocvar{x} (\coqdocvar{expr\_fv} \coqdocvar{E2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{assn\_fv} \coqdocvar{J} \coqdocvar{x} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} (\coqdocvar{Astar} (\coqdocvar{assn\_subst} \coqdocvar{x} \coqdocvar{E2} \coqdocvar{A}) (\coqdocvar{Apointsto} \coqdocvar{t} \coqdocvar{q} \coqdocvar{E1} \coqdocvar{E2})) (\coqdocvar{Cread} \coqdocvar{x} \coqdocvar{E1}) (\coqdocvar{Astar} \coqdocvar{A} (\coqdocvar{Apointsto} \coqdocvar{t} \coqdocvar{q} \coqdocvar{E1} \coqdocvar{E2})).\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsubsection{Heap writing}
+
+
+
+ Soundness of the rules for heap writing. In the paper these rules are
+    presented as a single rule (for presentational convenience), but here
+    we handle heap writing via two separate rules -- one for handling
+    points-to ownership predicates of type \coqdocvar{PTTstd}, and one for \coqdocvar{PTTact}. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_write\_std} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{E1} \coqdocvar{E2} \coqdocvar{E3},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} (\coqdocvar{Apointsto} \coqdocvar{PTTstd} 1 \coqdocvar{E1} \coqdocvar{E3}) (\coqdocvar{Cwrite} \coqdocvar{E1} \coqdocvar{E2}) (\coqdocvar{Apointsto} \coqdocvar{PTTstd} 1 \coqdocvar{E1} \coqdocvar{E2}).\coqdoceol
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_write\_act} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{E1} \coqdocvar{E2} \coqdocvar{E3},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} (\coqdocvar{Apointsto} \coqdocvar{PTTact} 1 \coqdocvar{E1} \coqdocvar{E3}) (\coqdocvar{Cwrite} \coqdocvar{E1} \coqdocvar{E2}) (\coqdocvar{Apointsto} \coqdocvar{PTTact} 1 \coqdocvar{E1} \coqdocvar{E2}).\coqdoceol
+\end{coqdoccode}
+\subsubsection{Heap allocation}
+
+\begin{coqdoccode}
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_alloc} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{x} \coqdocvar{E} \coqdocvar{J},\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{In} \coqdocvar{x} (\coqdocvar{expr\_fv} \coqdocvar{E}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{assn\_fv} \coqdocvar{J} \coqdocvar{x} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{Atrue} (\coqdocvar{Calloc} \coqdocvar{x} \coqdocvar{E}) (\coqdocvar{Apointsto} \coqdocvar{PTTstd} \coqdocvar{perm\_full} (\coqdocvar{Evar} \coqdocvar{x}) \coqdocvar{E}).\coqdoceol
+\end{coqdoccode}
+\subsubsection{Heap disposal}
+
+\begin{coqdoccode}
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_dispose}  :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{E1} \coqdocvar{E2} \coqdocvar{J},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} (\coqdocvar{Apointsto} \coqdocvar{PTTstd} \coqdocvar{perm\_full} \coqdocvar{E1} \coqdocvar{E2}) (\coqdocvar{Cdispose} \coqdocvar{E1}) \coqdocvar{Atrue}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsubsection{Parallel composition}
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{safe\_par}  :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C1} \coqdocvar{C2} \coqdocvar{ph1} \coqdocvar{ph2} \coqdocvar{pm1} \coqdocvar{pm2} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{A2},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{phDisj} \coqdocvar{ph1} \coqdocvar{ph2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmDisj} \coqdocvar{pm1} \coqdocvar{pm2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmSafe} (\coqdocvar{phSnapshot} \coqdocvar{ph1}) \coqdocvar{pm1} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmSafe} (\coqdocvar{phSnapshot} \coqdocvar{ph2}) \coqdocvar{pm2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{cmd\_wf} (\coqdocvar{Cpar} \coqdocvar{C1} \coqdocvar{C2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{cmd\_fv} \coqdocvar{C1}) (\coqdocvar{cmd\_mod} \coqdocvar{C2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{assn\_fv} \coqdocvar{A1}) (\coqdocvar{cmd\_mod} \coqdocvar{C2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{assn\_fv} \coqdocvar{J}) (\coqdocvar{cmd\_mod} \coqdocvar{C2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{cmd\_fv} \coqdocvar{C2}) (\coqdocvar{cmd\_mod} \coqdocvar{C1}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{assn\_fv} \coqdocvar{A2}) (\coqdocvar{cmd\_mod} \coqdocvar{C1}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{assn\_fv} \coqdocvar{J}) (\coqdocvar{cmd\_mod} \coqdocvar{C1}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C1} \coqdocvar{ph1} \coqdocvar{pm1} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A1} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} \coqdocvar{C2} \coqdocvar{ph2} \coqdocvar{pm2} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{basic} (\coqdocvar{Cpar} \coqdocvar{C1} \coqdocvar{C2}) (\coqdocvar{phUnion} \coqdocvar{ph1} \coqdocvar{ph2}) (\coqdocvar{pmUnion} \coqdocvar{pm1} \coqdocvar{pm2}) \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} (\coqdocvar{Astar} \coqdocvar{A1} \coqdocvar{A2}).\coqdoceol
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_par} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{C1} \coqdocvar{C2} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{A2} \coqdocvar{A1'} \coqdocvar{A2'},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{cmd\_fv} \coqdocvar{C1}) (\coqdocvar{cmd\_mod} \coqdocvar{C2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{assn\_fv} \coqdocvar{A1'}) (\coqdocvar{cmd\_mod} \coqdocvar{C2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{assn\_fv} \coqdocvar{J}) (\coqdocvar{cmd\_mod} \coqdocvar{C2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{cmd\_fv} \coqdocvar{C2}) (\coqdocvar{cmd\_mod} \coqdocvar{C1}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{assn\_fv} \coqdocvar{A2'}) (\coqdocvar{cmd\_mod} \coqdocvar{C1}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{assn\_fv} \coqdocvar{J}) (\coqdocvar{cmd\_mod} \coqdocvar{C1}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{C1} \coqdocvar{A1'} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} \coqdocvar{A2} \coqdocvar{C2} \coqdocvar{A2'} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} (\coqdocvar{Astar} \coqdocvar{A1} \coqdocvar{A2}) (\coqdocvar{Cpar} \coqdocvar{C1} \coqdocvar{C2}) (\coqdocvar{Astar} \coqdocvar{A1'} \coqdocvar{A2'}).\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsubsection{Existential quantification}
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_ex} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{basic} \coqdocvar{C} \coqdocvar{J} (\coqdocvar{A1} \coqdocvar{A2} : \coqdocvar{Val} \ensuremath{\rightarrow} \coqdocvar{Assn}),\coqdoceol
+\coqdocindent{2.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{x}, \coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} (\coqdocvar{A1} \coqdocvar{x}) \coqdocvar{C} (\coqdocvar{A2} \coqdocvar{x})) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{basic} \coqdocvar{J} (\coqdocvar{Aex} \coqdocvar{A1}) \coqdocvar{C} (\coqdocvar{Aex} \coqdocvar{A2}).\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsubsection{Share rule}
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{safe\_share} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{n} \coqdocvar{C} \coqdocvar{ph1} \coqdocvar{ph2} \coqdocvar{pm1} \coqdocvar{pm2} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{A2},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{phDisj} \coqdocvar{ph1} \coqdocvar{ph2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmDisj} \coqdocvar{pm1} \coqdocvar{pm2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmSafe} (\coqdocvar{phSnapshot} \coqdocvar{ph1}) \coqdocvar{pm1} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmSafe} (\coqdocvar{phSnapshot} \coqdocvar{ph2}) \coqdocvar{pm2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{invariant\_sat} \coqdocvar{ph2} \coqdocvar{pm2} \coqdocvar{s} \coqdocvar{g} \coqdocvar{C} \coqdocvar{A2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{False} \coqdocvar{C} \coqdocvar{ph1} \coqdocvar{pm1} \coqdocvar{s} \coqdocvar{g} (\coqdocvar{Astar} \coqdocvar{J} \coqdocvar{A2}) \coqdocvar{A1} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{False} \coqdocvar{C} (\coqdocvar{phUnion} \coqdocvar{ph1} \coqdocvar{ph2}) (\coqdocvar{pmUnion} \coqdocvar{pm1} \coqdocvar{pm2}) \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} (\coqdocvar{Astar} \coqdocvar{A1} \coqdocvar{A2}).\coqdoceol
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_share} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{C} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{A2} \coqdocvar{A3},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{False} (\coqdocvar{Astar} \coqdocvar{J} \coqdocvar{A3}) \coqdocvar{A1} \coqdocvar{C} \coqdocvar{A2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{False} \coqdocvar{J} (\coqdocvar{Astar} \coqdocvar{A1} \coqdocvar{A3}) \coqdocvar{C} (\coqdocvar{Astar} \coqdocvar{A2} \coqdocvar{A3}).\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsubsection{Atomic rule}
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{safe\_atom} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{n} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{False} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{Atrue} (\coqdocvar{Astar} \coqdocvar{A} \coqdocvar{J}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{False} (\coqdocvar{Cinatom} \coqdocvar{C}) \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} \coqdocvar{A}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_atom} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{C} \coqdocvar{J} \coqdocvar{A1} \coqdocvar{A2},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{False} \coqdocvar{Atrue} (\coqdocvar{Astar} \coqdocvar{A1} \coqdocvar{J}) \coqdocvar{C} (\coqdocvar{Astar} \coqdocvar{A2} \coqdocvar{J}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{False} \coqdocvar{J} \coqdocvar{A1} (\coqdocvar{Catomic} \coqdocvar{C}) \coqdocvar{A2}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsubsection{Process init rule}
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_proc\_init} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{Pf} \coqdocvar{E} \coqdocvar{J} (\coqdocvar{x} : \coqdocvar{Var})(\coqdocvar{xs} : \coqdocvar{list} \coqdocvar{ProcVar})(\coqdocvar{f1} \coqdocvar{f2} : \coqdocvar{ProcVar} \ensuremath{\rightarrow} \coqdocvar{Expr}),\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{let} \coqdocvar{HP} := \coqdocvar{Pf} \coqdocvar{E} \coqdoctac{in}\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{let} \coqdocvar{b} := \coqdocvar{precondition} \coqdocvar{HP} \coqdoctac{in}\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{let} \coqdocvar{B} := \coqdocvar{hcond\_convert} \coqdocvar{b} \coqdocvar{f2} \coqdoctac{in}\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{let} \coqdocvar{fq} := \coqdockw{fun} \coqdocvar{\_} \ensuremath{\Rightarrow} \coqdocvar{perm\_full} \coqdoctac{in}\coqdoceol
+\coqdocindent{2.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{y}, \coqdocvar{In} \coqdocvar{y} (\coqdocvar{hcond\_fpv} \coqdocvar{b}) \ensuremath{\rightarrow} \coqdocvar{In} \coqdocvar{y} \coqdocvar{xs}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{assn\_fv} \coqdocvar{J} \coqdocvar{x} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} (\coqdoctac{\ensuremath{\exists}} \coqdocvar{y} : \coqdocvar{ProcVar}, \coqdocvar{In} \coqdocvar{y} \coqdocvar{xs} \ensuremath{\land} \coqdocvar{In} \coqdocvar{x} (\coqdocvar{expr\_fv} (\coqdocvar{f1} \coqdocvar{y}))) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} (\coqdoctac{\ensuremath{\exists}} \coqdocvar{y} : \coqdocvar{ProcVar}, \coqdocvar{In} \coqdocvar{y} \coqdocvar{xs} \ensuremath{\land} \coqdocvar{In} \coqdocvar{x} (\coqdocvar{expr\_fv} (\coqdocvar{f2} \coqdocvar{y}))) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{False} \coqdocvar{J}\coqdoceol
+\coqdocindent{2.00em}
+(\coqdocvar{Astar} (\coqdocvar{Aiter} (\coqdocvar{ApointstoIter} \coqdocvar{xs} \coqdocvar{fq} \coqdocvar{f1} \coqdocvar{f2} \coqdocvar{PTTstd})) (\coqdocvar{Aplain} \coqdocvar{B}))\coqdoceol
+\coqdocindent{2.00em}
+(\coqdocvar{Cproc} \coqdocvar{x} \coqdocvar{Pf} \coqdocvar{E} \coqdocvar{xs} \coqdocvar{f1})\coqdoceol
+\coqdocindent{2.00em}
+(\coqdocvar{Astar} (\coqdocvar{Astar} (\coqdocvar{Aiter} (\coqdocvar{ApointstoIter} \coqdocvar{xs} \coqdocvar{fq} \coqdocvar{f1} \coqdocvar{f2} \coqdocvar{PTTproc})) (\coqdocvar{Aproc} \coqdocvar{x} \coqdocvar{perm\_full} \coqdocvar{HP} \coqdocvar{xs} \coqdocvar{f1})) (\coqdocvar{Aplain} \coqdocvar{B})).\coqdoceol
+\end{coqdoccode}
+\subsubsection{Process finish rule}
+
+\begin{coqdoccode}
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_proc\_finish} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{HP} \coqdocvar{J} (\coqdocvar{x} : \coqdocvar{Var})(\coqdocvar{xs} : \coqdocvar{list} \coqdocvar{ProcVar})(\coqdocvar{f1} \coqdocvar{f2} : \coqdocvar{ProcVar} \ensuremath{\rightarrow} \coqdocvar{Expr}),\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{let} \coqdocvar{fq} := \coqdockw{fun} \coqdocvar{\_} \ensuremath{\Rightarrow} \coqdocvar{perm\_full} \coqdoctac{in}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{False} \coqdocvar{J}\coqdoceol
+\coqdocindent{2.00em}
+(\coqdocvar{Astar} (\coqdocvar{Aiter} (\coqdocvar{ApointstoIter} \coqdocvar{xs} \coqdocvar{fq} \coqdocvar{f1} \coqdocvar{f2} \coqdocvar{PTTproc})) (\coqdocvar{Aproc} \coqdocvar{x} \coqdocvar{perm\_full} (\coqdocvar{HPalt} \coqdocvar{HP} \coqdocvar{HPepsilon}) \coqdocvar{xs} \coqdocvar{f1}))\coqdoceol
+\coqdocindent{2.00em}
+(\coqdocvar{Cendproc} \coqdocvar{x})\coqdoceol
+\coqdocindent{2.00em}
+(\coqdocvar{Aiter} (\coqdocvar{ApointstoIter} \coqdocvar{xs} \coqdocvar{fq} \coqdocvar{f1} \coqdocvar{f2} \coqdocvar{PTTstd})).\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\subsubsection{Action rule}
+
+
+
+ The soundness proof of the action rule requires some
+    extra auxiliary definitions and properties, in particular
+    that the metadata that is stored in \coqdocvar{Cinact} commands
+    actually makes sense with respect to the rest of the
+    state that is maintained. The central definition that helps
+    with is is \coqdocvar{metadata\_agree}. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{phcConcr\_snapshot\_none} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{pme}, \coqdocvar{phcConcr} \coqdocvar{pme} = \coqdocvar{None} \ensuremath{\rightarrow} \coqdocvar{phcSnapshot} \coqdocvar{pme} = \coqdocvar{None}.\coqdoceol
+ \coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdocvar{metadata\_agree} (\coqdocvar{pid} : \coqdocvar{Val})(\coqdocvar{a} : \coqdocvar{Act})(\coqdocvar{v} : \coqdocvar{Val})(\coqdocvar{xs} : \coqdocvar{list} \coqdocvar{ProcVar})(\coqdocvar{f} : \coqdocvar{ProcVar} \ensuremath{\rightarrow} \coqdocvar{Val})(\coqdocvar{h} \coqdocvar{hs} : \coqdocvar{Heap})(\coqdocvar{pm} : \coqdocvar{ProcMap}) : \coqdockw{Prop} :=\coqdoceol
+\coqdocindent{1.00em}
+\coqdoceol
+\coqdocindent{1.00em}
+\coqdoctac{\ensuremath{\exists}} (\coqdocvar{q} : \coqdocvar{Qc})(\coqdocvar{P} : \coqdocvar{Proc}),\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{pmeBisim} (\coqdocvar{pm} \coqdocvar{pid}) (\coqdocvar{PEelem} \coqdocvar{q} \coqdocvar{P} \coqdocvar{xs} \coqdocvar{f}) \ensuremath{\land}\coqdoceol
+\coqdocindent{1.00em}
+\coqdoceol
+\coqdocindent{2.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{x} : \coqdocvar{ProcVar}, \coqdocvar{In} \coqdocvar{x} (\coqdocvar{act\_fv} \coqdocvar{a} \coqdocvar{v}) \ensuremath{\rightarrow} \coqdocvar{In} \coqdocvar{x} \coqdocvar{xs}) \ensuremath{\land}\coqdoceol
+\coqdocindent{1.00em}
+\coqdoceol
+\coqdocindent{2.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{x} : \coqdocvar{ProcVar}, \coqdocvar{In} \coqdocvar{x} \coqdocvar{xs} \ensuremath{\rightarrow} \coqdocvar{h} (\coqdocvar{f} \coqdocvar{x}) = \coqdocvar{hs} (\coqdocvar{f} \coqdocvar{x})) \ensuremath{\land}\coqdoceol
+\coqdocindent{1.00em}
+\coqdoceol
+\coqdocindent{2.00em}
+\coqdoctac{\ensuremath{\exists}} \coqdocvar{ps} : \coqdocvar{ProcStore},\coqdoceol
+\coqdocindent{3.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{x} : \coqdocvar{ProcVar}, \coqdocvar{In} \coqdocvar{x} \coqdocvar{xs} \ensuremath{\rightarrow} \coqdocvar{h} (\coqdocvar{f} \coqdocvar{x}) = \coqdocvar{Some} (\coqdocvar{ps} \coqdocvar{x})) \ensuremath{\land}\coqdoceol
+\coqdocindent{4.00em}
+\coqdocvar{pcond\_eval} (\coqdocvar{guard} \coqdocvar{a} \coqdocvar{v}) \coqdocvar{ps} = \coqdocvar{true}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{metadata\_agree\_pmBisim} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{pid} \coqdocvar{a} \coqdocvar{v} \coqdocvar{xs} \coqdocvar{f} \coqdocvar{h} \coqdocvar{hs} \coqdocvar{pm1} \coqdocvar{pm2},\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmBisim} \coqdocvar{pm1} \coqdocvar{pm2} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{metadata\_agree} \coqdocvar{pid} \coqdocvar{a} \coqdocvar{v} \coqdocvar{xs} \coqdocvar{f} \coqdocvar{h} \coqdocvar{hs} \coqdocvar{pm1} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{metadata\_agree} \coqdocvar{pid} \coqdocvar{a} \coqdocvar{v} \coqdocvar{xs} \coqdocvar{f} \coqdocvar{h} \coqdocvar{hs} \coqdocvar{pm2}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Add} \coqdocvar{Parametric} \coqdocvar{Morphism} : \coqdocvar{metadata\_agree}\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{with} \coqdocvar{signature} \coqdocvar{eq} ==> \coqdocvar{eq} ==> \coqdocvar{eq} ==> \coqdocvar{eq} ==> \coqdocvar{eq} ==> \coqdocvar{eq} ==> \coqdocvar{eq} ==> \coqdocvar{pmBisim} ==> \coqdocvar{iff}\coqdoceol
+\coqdocindent{2.00em}
+\coqdockw{as} \coqdocvar{metadata\_agree\_pmBisim\_mor}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{metadata\_agree\_F} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{pid} \coqdocvar{a} \coqdocvar{v} \coqdocvar{xs} \coqdocvar{F1} \coqdocvar{F2} \coqdocvar{h} \coqdocvar{hs} \coqdocvar{pm},\coqdoceol
+\coqdocindent{2.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{x} : \coqdocvar{ProcVar}, \coqdocvar{In} \coqdocvar{x} \coqdocvar{xs} \ensuremath{\rightarrow} \coqdocvar{F1} \coqdocvar{x} = \coqdocvar{F2} \coqdocvar{x}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{metadata\_agree} \coqdocvar{pid} \coqdocvar{a} \coqdocvar{v} \coqdocvar{xs} \coqdocvar{F1} \coqdocvar{h} \coqdocvar{hs} \coqdocvar{pm} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{metadata\_agree} \coqdocvar{pid} \coqdocvar{a} \coqdocvar{v} \coqdocvar{xs} \coqdocvar{F2} \coqdocvar{h} \coqdocvar{hs} \coqdocvar{pm}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Now to the actual soundness result, which can be proven
+    using the following (rather involved) key lemma: \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{safe\_action} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{n} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{pm'} (\coqdocvar{s} \coqdocvar{g} : \coqdocvar{Store}) \coqdocvar{x} \coqdocvar{hs} \coqdocvar{q} \coqdocvar{E} \coqdocvar{HP} \coqdocvar{HQ} (\coqdocvar{xs} \coqdocvar{ys1} \coqdocvar{ys2} : \coqdocvar{list} \coqdocvar{ProcVar}) \coqdocvar{a} (\coqdocvar{fq} : \coqdocvar{ProcVar} \ensuremath{\rightarrow} \coqdocvar{Qc})(\coqdocvar{f1} \coqdocvar{f2} : \coqdocvar{ProcVar} \ensuremath{\rightarrow} \coqdocvar{Expr})(\coqdocvar{J} \coqdocvar{A} : \coqdocvar{Assn}),\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{let} \coqdocvar{B2} := \coqdocvar{hcond\_convert} (\coqdocvar{heffect} \coqdocvar{a} \coqdocvar{E}) \coqdocvar{f2} \coqdoctac{in}\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{let} \coqdocvar{F1} := \coqdocvar{expr\_eval\_map} \coqdocvar{f1} \coqdocvar{s} : \coqdocvar{ProcVar} \ensuremath{\rightarrow} \coqdocvar{Val} \coqdoctac{in}\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{let} \coqdocvar{v} := \coqdocvar{expr\_eval} \coqdocvar{E} \coqdocvar{s} \coqdoctac{in}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{metadata\_agree} (\coqdocvar{g} \coqdocvar{x}) \coqdocvar{a} \coqdocvar{v} \coqdocvar{xs} \coqdocvar{F1} \coqdocvar{hs} (\coqdocvar{phSnapshot} \coqdocvar{ph}) \coqdocvar{pm'} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{Permutation} \coqdocvar{xs} (\coqdocvar{ys1} ++ \coqdocvar{ys2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{y} : \coqdocvar{ProcVar}, \coqdocvar{In} \coqdocvar{y} \coqdocvar{ys1} \ensuremath{\rightarrow} \coqdocvar{fq} \coqdocvar{y} \ensuremath{\not=} \coqdocvar{perm\_full}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{y} : \coqdocvar{ProcVar}, \coqdocvar{In} \coqdocvar{y} \coqdocvar{ys2} \ensuremath{\rightarrow} \coqdocvar{fq} \coqdocvar{y} = \coqdocvar{perm\_full}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{y} : \coqdocvar{ProcVar}, \coqdocvar{In} \coqdocvar{y} \coqdocvar{xs} \ensuremath{\rightarrow} \coqdocvar{perm\_valid} (\coqdocvar{fq} \coqdocvar{y})) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{y} : \coqdocvar{ProcVar}, \coqdocvar{disjoint} (\coqdocvar{expr\_fv} (\coqdocvar{f1} \coqdocvar{y})) (\coqdocvar{cmd\_mod} \coqdocvar{C})) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{expr\_fv} \coqdocvar{E}) (\coqdocvar{cmd\_mod} \coqdocvar{C}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{hproc\_fv} \coqdocvar{HP}) (\coqdocvar{cmd\_mod} \coqdocvar{C}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{hproc\_fv} \coqdocvar{HQ}) (\coqdocvar{cmd\_mod} \coqdocvar{C}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{cmd\_mod} \coqdocvar{C} \coqdocvar{x} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{cmd\_basic} \coqdocvar{C} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{pmDisj} \coqdocvar{pm} \coqdocvar{pm'} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{sat} \coqdocvar{phIden} \coqdocvar{pm'} \coqdocvar{s} \coqdocvar{g} (\coqdocvar{Aproc} \coqdocvar{x} \coqdocvar{q} (\coqdocvar{HPalt} (\coqdocvar{HPseq} (\coqdocvar{HPact} \coqdocvar{a} \coqdocvar{E}) \coqdocvar{HP}) \coqdocvar{HQ}) \coqdocvar{xs} \coqdocvar{f1}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{True} \coqdocvar{C} \coqdocvar{ph} \coqdocvar{pm} \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} (\coqdocvar{Astar} (\coqdocvar{Astar} (\coqdocvar{Aiter} (\coqdocvar{ApointstoIter\_procact} \coqdocvar{xs} \coqdocvar{fq} \coqdocvar{f1} \coqdocvar{f2})) (\coqdocvar{Aplain} \coqdocvar{B2})) \coqdocvar{A}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{safe} \coqdocvar{n} \coqdocvar{False} (\coqdocvar{Cinact} (\coqdocvar{GMdata} (\coqdocvar{g} \coqdocvar{x}) \coqdocvar{a} \coqdocvar{v} \coqdocvar{hs}) \coqdocvar{C}) \coqdocvar{ph} (\coqdocvar{pmUnion} \coqdocvar{pm} \coqdocvar{pm'}) \coqdocvar{s} \coqdocvar{g} \coqdocvar{J} (\coqdocvar{Astar} (\coqdocvar{Astar} (\coqdocvar{Astar} (\coqdocvar{Aiter} (\coqdocvar{ApointstoIter} \coqdocvar{xs} \coqdocvar{fq} \coqdocvar{f1} \coqdocvar{f2} \coqdocvar{PTTproc})) (\coqdocvar{Aproc} \coqdocvar{x} \coqdocvar{q} \coqdocvar{HP} \coqdocvar{xs} \coqdocvar{f1})) (\coqdocvar{Aplain} \coqdocvar{B2})) \coqdocvar{A}).\coqdoceol
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_act} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{x} \coqdocvar{a} \coqdocvar{E} \coqdocvar{C} \coqdocvar{xs} \coqdocvar{J} \coqdocvar{q} \coqdocvar{HP} \coqdocvar{HQ} (\coqdocvar{f1} \coqdocvar{f2} \coqdocvar{f2'} : \coqdocvar{ProcVar} \ensuremath{\rightarrow} \coqdocvar{Expr})(\coqdocvar{fq} : \coqdocvar{ProcVar} \ensuremath{\rightarrow} \coqdocvar{Qc}) \coqdocvar{A1} \coqdocvar{A2},\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{let} \coqdocvar{B1} := \coqdocvar{hcond\_convert} (\coqdocvar{hguard} \coqdocvar{a} \coqdocvar{E}) \coqdocvar{f2} \coqdoctac{in}\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{let} \coqdocvar{B2} := \coqdocvar{hcond\_convert} (\coqdocvar{heffect} \coqdocvar{a} \coqdocvar{E}) \coqdocvar{f2'} \coqdoctac{in}\coqdoceol
+\coqdocindent{1.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{y} \coqdocvar{v}, \coqdocvar{In} \coqdocvar{y} (\coqdocvar{act\_fv} \coqdocvar{a} \coqdocvar{v}) \ensuremath{\rightarrow} \coqdocvar{In} \coqdocvar{y} \coqdocvar{xs}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{y} : \coqdocvar{ProcVar}, \coqdocvar{In} \coqdocvar{y} \coqdocvar{xs} \ensuremath{\rightarrow} \coqdocvar{perm\_valid} (\coqdocvar{fq} \coqdocvar{y})) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{y} : \coqdocvar{ProcVar}, \coqdocvar{disjoint} (\coqdocvar{expr\_fv} (\coqdocvar{f1} \coqdocvar{y})) (\coqdocvar{cmd\_mod} \coqdocvar{C})) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{expr\_fv} \coqdocvar{E}) (\coqdocvar{cmd\_mod} \coqdocvar{C}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{hproc\_fv} \coqdocvar{HP}) (\coqdocvar{cmd\_mod} \coqdocvar{C}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{disjoint} (\coqdocvar{hproc\_fv} \coqdocvar{HQ}) (\coqdocvar{cmd\_mod} \coqdocvar{C}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{\lnot} \coqdocvar{cmd\_mod} \coqdocvar{C} \coqdocvar{x} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{True} \coqdocvar{J} (\coqdocvar{Astar} (\coqdocvar{Astar} (\coqdocvar{Aiter} (\coqdocvar{ApointstoIter\_procact} \coqdocvar{xs} \coqdocvar{fq} \coqdocvar{f1} \coqdocvar{f2})) (\coqdocvar{Aplain} \coqdocvar{B1})) \coqdocvar{A1}) \coqdocvar{C} (\coqdocvar{Astar} (\coqdocvar{Astar} (\coqdocvar{Aiter} (\coqdocvar{ApointstoIter\_procact} \coqdocvar{xs} \coqdocvar{fq} \coqdocvar{f1} \coqdocvar{f2'})) (\coqdocvar{Aplain} \coqdocvar{B2})) \coqdocvar{A2}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{False} \coqdocvar{J}\coqdoceol
+\coqdocindent{2.00em}
+(\coqdocvar{Astar} (\coqdocvar{Astar} (\coqdocvar{Astar} (\coqdocvar{Aiter} (\coqdocvar{ApointstoIter} \coqdocvar{xs} \coqdocvar{fq} \coqdocvar{f1} \coqdocvar{f2} \coqdocvar{PTTproc})) (\coqdocvar{Aproc} \coqdocvar{x} \coqdocvar{q} (\coqdocvar{HPalt} (\coqdocvar{HPseq} (\coqdocvar{HPact} \coqdocvar{a} \coqdocvar{E}) \coqdocvar{HP}) \coqdocvar{HQ}) \coqdocvar{xs} \coqdocvar{f1})) (\coqdocvar{Aplain} \coqdocvar{B1})) \coqdocvar{A1})\coqdoceol
+\coqdocindent{2.00em}
+(\coqdocvar{Cact} \coqdocvar{x} \coqdocvar{a} \coqdocvar{E} \coqdocvar{C})\coqdoceol
+\coqdocindent{2.00em}
+(\coqdocvar{Astar} (\coqdocvar{Astar} (\coqdocvar{Astar} (\coqdocvar{Aiter} (\coqdocvar{ApointstoIter} \coqdocvar{xs} \coqdocvar{fq} \coqdocvar{f1} \coqdocvar{f2'} \coqdocvar{PTTproc})) (\coqdocvar{Aproc} \coqdocvar{x} \coqdocvar{q} \coqdocvar{HP} \coqdocvar{xs} \coqdocvar{f1})) (\coqdocvar{Aplain} \coqdocvar{B2})) \coqdocvar{A2}).\coqdoceol
+\end{coqdoccode}
+\subsubsection{Query rule}
+
+
+
+ We use the following small helper definition
+    (only for technical reasons). \begin{coqdoccode}
+\coqdocnoindent
+\coqdockw{Definition} \coqdocvar{DisjWrapper} (\coqdocvar{P} \coqdocvar{Q} : \coqdockw{Prop}) := \coqdocvar{P} \ensuremath{\lor} \coqdocvar{Q}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{wrap} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{P} \coqdocvar{Q}, \coqdocvar{P} \ensuremath{\lor} \coqdocvar{Q} \ensuremath{\rightarrow} \coqdocvar{DisjWrapper} \coqdocvar{P} \coqdocvar{Q}.\coqdoceol
+ \coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{unwrap} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{P} \coqdocvar{Q}, \coqdocvar{DisjWrapper} \coqdocvar{P} \coqdocvar{Q} \ensuremath{\rightarrow} \coqdocvar{P} \ensuremath{\lor} \coqdocvar{Q}.\coqdoceol
+ \coqdocemptyline
+\end{coqdoccode}
+And now the actual rule: \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{rule\_query} :\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{\ensuremath{\forall}} \coqdocvar{x} \coqdocvar{HB} \coqdocvar{HP} \coqdocvar{HQ} \coqdocvar{q} (\coqdocvar{xs} : \coqdocvar{list} \coqdocvar{ProcVar})(\coqdocvar{f1} \coqdocvar{f2} : \coqdocvar{ProcVar} \ensuremath{\rightarrow} \coqdocvar{Expr})(\coqdocvar{fq} : \coqdocvar{ProcVar} \ensuremath{\rightarrow} \coqdocvar{Qc}) \coqdocvar{J} \coqdocvar{A},\coqdoceol
+\coqdocindent{1.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{y} : \coqdocvar{ProcVar}, \coqdocvar{In} \coqdocvar{y} (\coqdocvar{hcond\_fpv} \coqdocvar{HB}) \ensuremath{\rightarrow} \coqdocvar{In} \coqdocvar{y} \coqdocvar{xs}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+(\coqdockw{\ensuremath{\forall}} \coqdocvar{y} : \coqdocvar{ProcVar}, \coqdocvar{In} \coqdocvar{y} \coqdocvar{xs} \ensuremath{\rightarrow} \coqdocvar{perm\_valid} (\coqdocvar{fq} \coqdocvar{y})) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{let} \coqdocvar{B} := \coqdocvar{hcond\_convert} \coqdocvar{HB} \coqdocvar{f2} \coqdoctac{in}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvar{csl} \coqdocvar{False} \coqdocvar{J}\coqdoceol
+\coqdocindent{2.00em}
+(\coqdocvar{Astar} (\coqdocvar{Astar} (\coqdocvar{Aiter} (\coqdocvar{ApointstoIter} \coqdocvar{xs} \coqdocvar{fq} \coqdocvar{f1} \coqdocvar{f2} \coqdocvar{PTTproc})) (\coqdocvar{Aproc} \coqdocvar{x} \coqdocvar{q} (\coqdocvar{HPalt} (\coqdocvar{HPseq} (\coqdocvar{HPassert} \coqdocvar{HB}) \coqdocvar{HP}) \coqdocvar{HQ}) \coqdocvar{xs} \coqdocvar{f1})) \coqdocvar{A})\coqdoceol
+\coqdocindent{2.00em}
+(\coqdocvar{Cquery} \coqdocvar{x} \coqdocvar{HB})\coqdoceol
+\coqdocindent{2.00em}
+(\coqdocvar{Astar} (\coqdocvar{Astar} (\coqdocvar{Astar} (\coqdocvar{Aiter} (\coqdocvar{ApointstoIter} \coqdocvar{xs} \coqdocvar{fq} \coqdocvar{f1} \coqdocvar{f2} \coqdocvar{PTTproc})) (\coqdocvar{Aproc} \coqdocvar{x} \coqdocvar{q} \coqdocvar{HP} \coqdocvar{xs} \coqdocvar{f1})) (\coqdocvar{Aplain} \coqdocvar{B})) \coqdocvar{A}).\coqdoceol
+\coqdocnoindent
+\coqdockw{End} \coqdocvar{Soundness}.\coqdoceol
+\end{coqdoccode}
+\end{document}

@@ -1,0 +1,1891 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>ProcMap</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library ProcMap</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">FunctionalExtensionality</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">HahnBase</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Heaps</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">List</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Permissions</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Permutation</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Prelude</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Process</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">QArith</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Qcanon</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="var">Utf8</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Import</span> <span class="id" title="var">ListNotations</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Set Implicit Arguments</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab79"></a><h1 class="section">Process Maps</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Module</span> <span class="id" title="keyword">Type</span> <span class="id" title="var">ProcMaps</span><br/>
+&nbsp;&nbsp;(<span class="id" title="var">dom</span> : <span class="id" title="var">Domains</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">heaps</span>: <span class="id" title="var">Heaps</span> <span class="id" title="var">dom</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">procs</span>: <span class="id" title="var">Processes</span> <span class="id" title="var">dom</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Export</span> <span class="id" title="var">dom</span> <span class="id" title="var">heaps</span> <span class="id" title="var">procs</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab80"></a><h2 class="section">Process map entries</h2>
+
+<div class="paragraph"> </div>
+
+ The set <span class="inlinecode"><span class="id" title="var">ProcMapEntry</span></span> of <i>process map entries</i>
+    is later used as the codomain of process maps. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Inductive</span> <span class="id" title="var">ProcMapEntry</span> :=<br/>
+&nbsp;&nbsp;| <span class="id" title="var">PEelem</span>(<span class="id" title="var">q</span> : <span class="id" title="var">Qc</span>)(<span class="id" title="var">P</span> : <span class="id" title="var">Proc</span>)(<span class="id" title="var">xs</span> : <span class="id" title="var">list</span> <span class="id" title="var">ProcVar</span>)(<span class="id" title="var">f</span> : <span class="id" title="var">ProcVar</span> -&gt; <span class="id" title="var">Val</span>)<br/>
+&nbsp;&nbsp;| <span class="id" title="var">PEfree</span><br/>
+&nbsp;&nbsp;| <span class="id" title="var">PEinvalid</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="keyword">Search</span> <span class="id" title="var">Blacklist</span> "ProcMapEntry_rect".<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="keyword">Search</span> <span class="id" title="var">Blacklist</span> "ProcMapEntry_ind".<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="keyword">Search</span> <span class="id" title="var">Blacklist</span> "ProcMapEntry_rec".<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="keyword">Search</span> <span class="id" title="var">Blacklist</span> "ProcMapEntry_sind".<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab81"></a><h3 class="section">Bisimilarity</h3>
+
+<div class="paragraph"> </div>
+
+ Two process map entries are <i>equal up to bisimilarity</i>
+    if their components all agree, and their process terms
+    are bisimilar. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmeBisim</span> (<span class="id" title="var">c1</span> <span class="id" title="var">c2</span> : <span class="id" title="var">ProcMapEntry</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">c1</span>, <span class="id" title="var">c2</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEelem</span> <span class="id" title="var">q1</span> <span class="id" title="var">P1</span> <span class="id" title="var">xs1</span> <span class="id" title="var">f1</span>, <span class="id" title="var">PEelem</span> <span class="id" title="var">q2</span> <span class="id" title="var">P2</span> <span class="id" title="var">xs2</span> <span class="id" title="var">f2</span> =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">q1</span> = <span class="id" title="var">q2</span> /\ <span class="id" title="var">bisim</span> <span class="id" title="var">P1</span> <span class="id" title="var">P2</span> /\ <span class="id" title="var">xs1</span> = <span class="id" title="var">xs2</span> /\ <span class="id" title="var">map</span> <span class="id" title="var">f1</span> <span class="id" title="var">xs1</span> = <span class="id" title="var">map</span> <span class="id" title="var">f2</span> <span class="id" title="var">xs2</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEfree</span>, <span class="id" title="var">PEfree</span> =&gt; <span class="id" title="var">True</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEinvalid</span>, <span class="id" title="var">PEinvalid</span> =&gt; <span class="id" title="var">True</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span>, <span class="id" title="var">_</span> =&gt; <span class="id" title="var">False</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> &quot;c1 ≃ c2" := (<span class="id" title="var">pmeBisim</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>) (<span class="id" title="var">only</span> <span class="id" title="var">printing</span>, <span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The <span class="inlinecode"><span class="id" title="var">pmeBisim</span></span> relation is an equivalence relation. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmeBisim_refl</span> : <span class="id" title="var">Reflexive</span> <span class="id" title="var">pmeBisim</span>.<br/>
+ <span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmeBisim_symm</span> : <span class="id" title="var">Symmetric</span> <span class="id" title="var">pmeBisim</span>.<br/>
+ <span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmeBisim_trans</span> : <span class="id" title="var">Transitive</span> <span class="id" title="var">pmeBisim</span>.<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmeBisim_equiv</span> : <span class="id" title="var">Equivalence</span> <span class="id" title="var">pmeBisim</span>.<br/>
+ 
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmeBisim_refl</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Bisimilarity is a congruence for <span class="inlinecode"><span class="id" title="var">PEelem</span></span>. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">PEelem</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">bisim</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">pmeBisim</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">PEelem_bisim_mor</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Below are several useful properties of <span class="inlinecode"><span class="id" title="var">pmeBisim</span></span>. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeBisim_free</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>, <span class="id" title="var">pmeBisim</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">c1</span> = <span class="id" title="var">PEfree</span> -&gt; <span class="id" title="var">c2</span> = <span class="id" title="var">PEfree</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeBisim_equality</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c</span> <span class="id" title="var">q</span> <span class="id" title="var">P</span> <span class="id" title="var">xs</span> <span class="id" title="var">f</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeBisim</span> <span class="id" title="var">c</span> (<span class="id" title="var">PEelem</span> <span class="id" title="var">q</span> <span class="id" title="var">P</span> <span class="id" title="var">xs</span> <span class="id" title="var">f</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">P'</span> <span class="id" title="var">f'</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">c</span> = <span class="id" title="var">PEelem</span> <span class="id" title="var">q</span> <span class="id" title="var">P'</span> <span class="id" title="var">xs</span> <span class="id" title="var">f'</span> /\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">pmeBisim</span> (<span class="id" title="var">PEelem</span> <span class="id" title="var">q</span> <span class="id" title="var">P</span> <span class="id" title="var">xs</span> <span class="id" title="var">f</span>) (<span class="id" title="var">PEelem</span> <span class="id" title="var">q</span> <span class="id" title="var">P'</span> <span class="id" title="var">xs</span> <span class="id" title="var">f'</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeBisim_F</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q</span> <span class="id" title="var">P</span> <span class="id" title="var">xs</span> <span class="id" title="var">F1</span> <span class="id" title="var">F2</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">x</span> : <span class="id" title="var">ProcVar</span>, <span class="id" title="var">In</span> <span class="id" title="var">x</span> <span class="id" title="var">xs</span> -&gt; <span class="id" title="var">F1</span> <span class="id" title="var">x</span> = <span class="id" title="var">F2</span> <span class="id" title="var">x</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeBisim</span> (<span class="id" title="var">PEelem</span> <span class="id" title="var">q</span> <span class="id" title="var">P</span> <span class="id" title="var">xs</span> <span class="id" title="var">F1</span>) (<span class="id" title="var">PEelem</span> <span class="id" title="var">q</span> <span class="id" title="var">P</span> <span class="id" title="var">xs</span> <span class="id" title="var">F2</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab82"></a><h3 class="section">Validity</h3>
+
+<div class="paragraph"> </div>
+
+ A process map entry is <i>valid</i> if any fractional permission
+    it holds is valid. Free entries are always valid, whereas
+    invalid entries are never valid. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmeValid</span> (<span class="id" title="var">c</span> : <span class="id" title="var">ProcMapEntry</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">c</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEelem</span> <span class="id" title="var">q</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">perm_valid</span> <span class="id" title="var">q</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEfree</span> =&gt; <span class="id" title="var">True</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEinvalid</span> =&gt; <span class="id" title="var">False</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> &quot;√ c" := (<span class="id" title="var">pmeValid</span> <span class="id" title="var">c</span>) (<span class="id" title="var">only</span> <span class="id" title="var">printing</span>, <span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Free entries are always valid, whereas
+    invalid entries are never valid. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeValid_free</span> : <span class="id" title="var">pmeValid</span> <span class="id" title="var">PEfree</span>.<br/>
+ <span class="id" title="keyword">Lemma</span> <span class="id" title="var">pheValid_invalid</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c</span>, <span class="id" title="var">pmeValid</span> <span class="id" title="var">c</span> -&gt; <span class="id" title="var">c</span> &lt;&gt; <span class="id" title="var">PEinvalid</span>.<br/>
+ 
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmeValid_free</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Process map entry validity is closed under bisimilarity. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeValid_bisim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>, <span class="id" title="var">pmeBisim</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeValid</span> <span class="id" title="var">c1</span> -&gt; <span class="id" title="var">pmeValid</span> <span class="id" title="var">c2</span>.<br/>
+ <span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmeValid</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmeBisim</span> ==&gt; <span class="id" title="var">iff</span> <span class="id" title="keyword">as</span> <span class="id" title="var">pmeValid_bisim_mor</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab83"></a><h3 class="section">Disjointness</h3>
+
+<div class="paragraph"> </div>
+
+ Two process map entries are defined to be <i>disjoint</i>
+    if their permission components are together disjoint. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmeDisj</span> (<span class="id" title="var">c1</span> <span class="id" title="var">c2</span> : <span class="id" title="var">ProcMapEntry</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">c1</span>, <span class="id" title="var">c2</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEelem</span> <span class="id" title="var">q1</span> <span class="id" title="var">_</span> <span class="id" title="var">xs1</span> <span class="id" title="var">f1</span>, <span class="id" title="var">PEelem</span> <span class="id" title="var">q2</span> <span class="id" title="var">_</span> <span class="id" title="var">xs2</span> <span class="id" title="var">f2</span> =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">perm_disj</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> /\ <span class="id" title="var">xs1</span> = <span class="id" title="var">xs2</span> /\ <span class="id" title="var">map</span> <span class="id" title="var">f1</span> <span class="id" title="var">xs1</span> = <span class="id" title="var">map</span> <span class="id" title="var">f2</span> <span class="id" title="var">xs2</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEelem</span> <span class="id" title="var">q</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>, <span class="id" title="var">PEfree</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEfree</span>, <span class="id" title="var">PEelem</span> <span class="id" title="var">q</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">perm_valid</span> <span class="id" title="var">q</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEfree</span>, <span class="id" title="var">PEfree</span> =&gt; <span class="id" title="var">True</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEinvalid</span>, <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span>, <span class="id" title="var">PEinvalid</span> =&gt; <span class="id" title="var">False</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> &quot;c1 ⟂ c2" := (<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>) (<span class="id" title="var">only</span> <span class="id" title="var">printing</span>, <span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The relation <span class="inlinecode"><span class="id" title="var">pmeDisj</span></span> is symmetric. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmeDisj_symm</span> : <span class="id" title="var">Symmetric</span> <span class="id" title="var">pmeDisj</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Any valid entry is disjoint with a free entry. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_free_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c</span>, <span class="id" title="var">pmeValid</span> <span class="id" title="var">c</span> -&gt; <span class="id" title="var">pmeDisj</span> <span class="id" title="var">c</span> <span class="id" title="var">PEfree</span>.<br/>
+ <span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_free_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c</span>, <span class="id" title="var">pmeValid</span> <span class="id" title="var">c</span> -&gt; <span class="id" title="var">pmeDisj</span> <span class="id" title="var">PEfree</span> <span class="id" title="var">c</span>.<br/>
+ 
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmeDisj_free_l</span> <span class="id" title="var">pmeDisj_free_r</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+No entry is disjoint with an invalid entry. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_invalid_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c</span>, ~ <span class="id" title="var">pmeDisj</span> <span class="id" title="var">c</span> <span class="id" title="var">PEinvalid</span>.<br/>
+ <span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_invalid_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c</span>, ~ <span class="id" title="var">pmeDisj</span> <span class="id" title="var">PEinvalid</span> <span class="id" title="var">c</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Any two disjoint entries are also valid. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_valid_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>, <span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeValid</span> <span class="id" title="var">c1</span>.<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_valid_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>, <span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeValid</span> <span class="id" title="var">c2</span>.<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_valid</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>, <span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeValid</span> <span class="id" title="var">c1</span> /\ <span class="id" title="var">pmeValid</span> <span class="id" title="var">c2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmeDisj_valid_l</span> <span class="id" title="var">pmeDisj_valid_r</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Disjoint entries can always be replaced by bisimilar ones. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_bisim_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c</span>, <span class="id" title="var">pmeBisim</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c</span> -&gt; <span class="id" title="var">pmeDisj</span> <span class="id" title="var">c2</span> <span class="id" title="var">c</span>.<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_bisim_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c</span>, <span class="id" title="var">pmeBisim</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeDisj</span> <span class="id" title="var">c</span> <span class="id" title="var">c1</span> -&gt; <span class="id" title="var">pmeDisj</span> <span class="id" title="var">c</span> <span class="id" title="var">c2</span>.<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmeDisj</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmeBisim</span> ==&gt; <span class="id" title="var">pmeBisim</span> ==&gt; <span class="id" title="var">iff</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">pmeDisj_bisim_mor</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab84"></a><h3 class="section">Disjoint union</h3>
+
+<div class="paragraph"> </div>
+
+ The (disjoint) union of two process map entries is defined
+    as the addition of their process and permission components. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmeUnion</span> (<span class="id" title="var">c1</span> <span class="id" title="var">c2</span> : <span class="id" title="var">ProcMapEntry</span>) : <span class="id" title="var">ProcMapEntry</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">c1</span>, <span class="id" title="var">c2</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEelem</span> <span class="id" title="var">q1</span> <span class="id" title="var">P1</span> <span class="id" title="var">xs1</span> <span class="id" title="var">f1</span>, <span class="id" title="var">PEelem</span> <span class="id" title="var">q2</span> <span class="id" title="var">P2</span> <span class="id" title="var">xs2</span> <span class="id" title="var">f2</span> =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">if</span> <span class="id" title="var">procvars_eq_dec</span> <span class="id" title="var">xs1</span> <span class="id" title="var">xs2</span> <span class="id" title="keyword">then</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">if</span> <span class="id" title="var">vals_eq_dec</span> (<span class="id" title="var">map</span> <span class="id" title="var">f1</span> <span class="id" title="var">xs1</span>) (<span class="id" title="var">map</span> <span class="id" title="var">f2</span> <span class="id" title="var">xs2</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">then</span> <span class="id" title="var">PEelem</span> (<span class="id" title="var">q1</span> + <span class="id" title="var">q2</span>) (<span class="id" title="var">Ppar</span> <span class="id" title="var">P1</span> <span class="id" title="var">P2</span>) <span class="id" title="var">xs1</span> <span class="id" title="var">f1</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">else</span> <span class="id" title="var">PEinvalid</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">else</span> <span class="id" title="var">PEinvalid</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEelem</span> <span class="id" title="var">q</span> <span class="id" title="var">P</span> <span class="id" title="var">xs</span> <span class="id" title="var">f</span>, <span class="id" title="var">PEfree</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEfree</span>, <span class="id" title="var">PEelem</span> <span class="id" title="var">q</span> <span class="id" title="var">P</span> <span class="id" title="var">xs</span> <span class="id" title="var">f</span> =&gt; <span class="id" title="var">PEelem</span> <span class="id" title="var">q</span> <span class="id" title="var">P</span> <span class="id" title="var">xs</span> <span class="id" title="var">f</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEfree</span>, <span class="id" title="var">PEfree</span> =&gt; <span class="id" title="var">PEfree</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEinvalid</span>, <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span>, <span class="id" title="var">PEinvalid</span> =&gt; <span class="id" title="var">PEinvalid</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> &quot;c1 ⨄ c2" :=<br/>
+&nbsp;&nbsp;(<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">only</span> <span class="id" title="var">printing</span>, <span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80, <span class="id" title="tactic">right</span> <span class="id" title="keyword">associativity</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The <span class="inlinecode"><span class="id" title="var">pmeUnion</span></span> disjoint union relation is
+    associative and commutative with respect to bisimilarity. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeUnion_assoc</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeBisim</span> (<span class="id" title="var">pmeUnion</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>) <span class="id" title="var">c3</span>) (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeUnion_comm</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>, <span class="id" title="var">pmeBisim</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>) (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c2</span> <span class="id" title="var">c1</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The disjoint union of two disjoint entries is always valid. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeUnion_valid</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>, <span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeValid</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Free entries are neutral with respect to disjoint union. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeUnion_free_l</span> : <span class="id" title="keyword">forall</span> <span class="id" title="var">c</span>, <span class="id" title="var">pmeUnion</span> <span class="id" title="var">c</span> <span class="id" title="var">PEfree</span> = <span class="id" title="var">c</span>.<br/>
+ <span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeUnion_free_r</span> : <span class="id" title="keyword">forall</span> <span class="id" title="var">c</span>, <span class="id" title="var">pmeUnion</span> <span class="id" title="var">PEfree</span> <span class="id" title="var">c</span> = <span class="id" title="var">c</span>.<br/>
+ 
+<br/>
+<span class="id" title="keyword">Hint Rewrite</span> <span class="id" title="var">pmeUnion_free_l</span> <span class="id" title="var">pmeUnion_free_r</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Invalid entries are absorbing with respect to disjoint union. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeUnion_invalid_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c</span>, <span class="id" title="var">pmeUnion</span> <span class="id" title="var">c</span> <span class="id" title="var">PEinvalid</span> = <span class="id" title="var">PEinvalid</span>.<br/>
+ <span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeUnion_invalid_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c</span>, <span class="id" title="var">pmeUnion</span> <span class="id" title="var">PEinvalid</span> <span class="id" title="var">c</span> = <span class="id" title="var">PEinvalid</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Bisimilarity of entries is closed under disjoint union. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeUnion_bisim_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeBisim</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeBisim</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c</span>) (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c2</span> <span class="id" title="var">c</span>).<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeUnion_bisim_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeBisim</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeBisim</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c</span> <span class="id" title="var">c1</span>) (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c</span> <span class="id" title="var">c2</span>).<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmeUnion</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmeBisim</span> ==&gt; <span class="id" title="var">pmeBisim</span> ==&gt; <span class="id" title="var">pmeBisim</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">pmeUnion_bisim_mor</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmeUnion_bisim_l</span> <span class="id" title="var">pmeUnion_bisim_r</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Below are several other useful properties of <span class="inlinecode"><span class="id" title="var">pmeUnion</span></span>. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeUnion_elem</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">q1</span> <span class="id" title="var">q2</span> <span class="id" title="var">P1</span> <span class="id" title="var">P2</span> <span class="id" title="var">xs</span> <span class="id" title="var">f</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeUnion</span> (<span class="id" title="var">PEelem</span> <span class="id" title="var">q1</span> <span class="id" title="var">P1</span> <span class="id" title="var">xs</span> <span class="id" title="var">f</span>) (<span class="id" title="var">PEelem</span> <span class="id" title="var">q2</span> <span class="id" title="var">P2</span> <span class="id" title="var">xs</span> <span class="id" title="var">f</span>) =<br/>
+&nbsp;&nbsp;<span class="id" title="var">PEelem</span> (<span class="id" title="var">q1</span> + <span class="id" title="var">q2</span>) (<span class="id" title="var">Ppar</span> <span class="id" title="var">P1</span> <span class="id" title="var">P2</span>) <span class="id" title="var">xs</span> <span class="id" title="var">f</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_union_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeDisj</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>) <span class="id" title="var">c3</span> -&gt; <span class="id" title="var">pmeDisj</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>.<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_union_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span> -&gt; <span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>) -&gt; <span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_assoc_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>) <span class="id" title="var">c3</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>).<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_assoc_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>) <span class="id" title="var">c3</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_swap_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>) <span class="id" title="var">c3</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c3</span>) <span class="id" title="var">c2</span>.<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_swap_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>) <span class="id" title="var">c3</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>) <span class="id" title="var">c1</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_middle</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span> <span class="id" title="var">c4</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c3</span> <span class="id" title="var">c4</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>) (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c3</span> <span class="id" title="var">c4</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_compat</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span> <span class="id" title="var">c4</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c3</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c2</span> <span class="id" title="var">c4</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c3</span>) (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c2</span> <span class="id" title="var">c4</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>) (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c3</span> <span class="id" title="var">c4</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeUnion_swap_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeBisim</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c2</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c3</span>)).<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeUnion_swap_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeBisim</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">pmeUnion</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>) <span class="id" title="var">c3</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">pmeUnion</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c3</span>) <span class="id" title="var">c2</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeUnion_compat</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span> <span class="id" title="var">c4</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeBisim</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">pmeUnion</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c3</span>) (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c2</span> <span class="id" title="var">c4</span>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">pmeUnion</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>) (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c3</span> <span class="id" title="var">c4</span>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeUnion_free</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> = <span class="id" title="var">PEfree</span> &lt;-&gt; <span class="id" title="var">c1</span> = <span class="id" title="var">PEfree</span> /\ <span class="id" title="var">c2</span> = <span class="id" title="var">PEfree</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeUnion_not_free</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> &lt;&gt; <span class="id" title="var">PEfree</span> &lt;-&gt; <span class="id" title="var">c1</span> &lt;&gt; <span class="id" title="var">PEfree</span> \/ <span class="id" title="var">c2</span> &lt;&gt; <span class="id" title="var">PEfree</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab85"></a><h3 class="section">Entirety</h3>
+
+<div class="paragraph"> </div>
+
+ Any process map entry <span class="inlinecode"><span class="id" title="var">c</span></span> is <i>entire</i> if <span class="inlinecode"><span class="id" title="var">c</span></span> is an
+    occupied entry with a full fractional permission. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmeEntire</span> (<span class="id" title="var">c</span> : <span class="id" title="var">ProcMapEntry</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">c</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEfree</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEinvalid</span> =&gt; <span class="id" title="var">False</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEelem</span> <span class="id" title="var">q</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">q</span> = <span class="id" title="var">perm_full</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Entire entries can always be replaced by bisimilar ones. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeEntire_bisim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>, <span class="id" title="var">pmeBisim</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeEntire</span> <span class="id" title="var">c1</span> -&gt; <span class="id" title="var">pmeEntire</span> <span class="id" title="var">c2</span>.<br/>
+ <span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmeEntire</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmeBisim</span> ==&gt; <span class="id" title="var">iff</span> <span class="id" title="keyword">as</span> <span class="id" title="var">pmeEntire_bisim_mor</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Below are several other useful properties of entirety. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeEntire_union</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeEntire</span> <span class="id" title="var">c1</span> \/ <span class="id" title="var">pmeEntire</span> <span class="id" title="var">c2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeEntire</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_entire_free</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>, <span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeEntire</span> <span class="id" title="var">c1</span> -&gt; <span class="id" title="var">c2</span> = <span class="id" title="var">PEfree</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeEntire_content</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeEntire</span> <span class="id" title="var">c</span> -&gt; <span class="id" title="tactic">exists</span> <span class="id" title="var">P</span> <span class="id" title="var">xs</span> <span class="id" title="var">f</span>, <span class="id" title="var">c</span> = <span class="id" title="var">PEelem</span> <span class="id" title="var">perm_full</span> <span class="id" title="var">P</span> <span class="id" title="var">xs</span> <span class="id" title="var">f</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeEntire_exp_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeEntire</span> <span class="id" title="var">c1</span> -&gt; <span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> = <span class="id" title="var">c1</span>.<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeEntire_exp_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeEntire</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> = <span class="id" title="var">c2</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab86"></a><h3 class="section">Projection</h3>
+
+<div class="paragraph"> </div>
+
+ The <i>projection</i> of any process map entry is the list of values
+    obtained by taking the image of the mappings stored in occupied
+    entries (or <span class="inlinecode"><span class="id" title="var">nil</span></span> if the entry of free or invalid). 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmeProj</span> (<span class="id" title="var">c</span> : <span class="id" title="var">ProcMapEntry</span>) : <span class="id" title="var">list</span> <span class="id" title="var">Val</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">c</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEelem</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">xs</span> <span class="id" title="var">f</span> =&gt; <span class="id" title="var">map</span> <span class="id" title="var">f</span> <span class="id" title="var">xs</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEfree</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEinvalid</span> =&gt; <span class="id" title="var">nil</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Projection is closed under bisimilarity. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeProj_bisim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>, <span class="id" title="var">pmeBisim</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeProj</span> <span class="id" title="var">c1</span> = <span class="id" title="var">pmeProj</span> <span class="id" title="var">c2</span>.<br/>
+ <span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmeProj</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmeBisim</span> ==&gt; <span class="id" title="var">eq</span> <span class="id" title="keyword">as</span> <span class="id" title="var">pmeProj_bisim_mor</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Below are several useful properties for projections. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeProj_union</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">v</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">In</span> <span class="id" title="var">v</span> (<span class="id" title="var">pmeProj</span> <span class="id" title="var">c1</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">In</span> <span class="id" title="var">v</span> (<span class="id" title="var">pmeProj</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeProj_disj_union</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeProj</span> <span class="id" title="var">c1</span> &lt;&gt; <span class="id" title="var">nil</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeProj</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>) = <span class="id" title="var">pmeProj</span> <span class="id" title="var">c1</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab87"></a><h3 class="section">Heap coverage</h3>
+
+<div class="paragraph"> </div>
+
+ Any process map entry <span class="inlinecode"><span class="id" title="var">c</span></span> is said to <i>fully cover a heap <span class="inlinecode"><span class="id" title="var">h</span></span></i>
+    if <span class="inlinecode"><span class="id" title="var">h</span></span> contains an entry at every location that is
+    in the projection of <span class="inlinecode"><span class="id" title="var">c</span></span>. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmeCovers</span> (<span class="id" title="var">c</span> : <span class="id" title="var">ProcMapEntry</span>)(<span class="id" title="var">h</span> : <span class="id" title="var">Heap</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">l</span>, <span class="id" title="var">In</span> <span class="id" title="var">l</span> (<span class="id" title="var">pmeProj</span> <span class="id" title="var">c</span>) -&gt; <span class="id" title="tactic">exists</span> <span class="id" title="var">v</span>, <span class="id" title="var">h</span> <span class="id" title="var">l</span> = <span class="id" title="var">Some</span> <span class="id" title="var">v</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Heap coverage is closed under bisimilarity. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeCovers_bisim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">h</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeBisim</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeCovers</span> <span class="id" title="var">c1</span> <span class="id" title="var">h</span> -&gt; <span class="id" title="var">pmeCovers</span> <span class="id" title="var">c2</span> <span class="id" title="var">h</span>.<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmeCovers</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmeBisim</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">iff</span> <span class="id" title="keyword">as</span> <span class="id" title="var">pmeCovers_bisim_mor</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Free entries cover every heap. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeCovers_free</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">h</span>, <span class="id" title="var">pmeCovers</span> <span class="id" title="var">PEfree</span> <span class="id" title="var">h</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Below are various other useful properties of coverage. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeCovers_union</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">h</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeCovers</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>) <span class="id" title="var">h</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeCovers</span> <span class="id" title="var">c1</span> <span class="id" title="var">h</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeCovers_hUpdate</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c</span> <span class="id" title="var">h</span> <span class="id" title="var">l</span> <span class="id" title="var">v</span>,<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">In</span> <span class="id" title="var">l</span> (<span class="id" title="var">pmeProj</span> <span class="id" title="var">c</span>) -&gt; <span class="id" title="var">pmeCovers</span> <span class="id" title="var">c</span> <span class="id" title="var">h</span> -&gt; <span class="id" title="var">pmeCovers</span> <span class="id" title="var">c</span> (<span class="id" title="var">hUpdate</span> <span class="id" title="var">h</span> <span class="id" title="var">l</span> <span class="id" title="var">v</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeCovers_agrees</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c</span> <span class="id" title="var">h1</span> <span class="id" title="var">h2</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">l</span>, <span class="id" title="var">In</span> <span class="id" title="var">l</span> (<span class="id" title="var">pmeProj</span> <span class="id" title="var">c</span>) -&gt; <span class="id" title="var">h1</span> <span class="id" title="var">l</span> = <span class="id" title="var">h2</span> <span class="id" title="var">l</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeCovers</span> <span class="id" title="var">c</span> <span class="id" title="var">h1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeCovers</span> <span class="id" title="var">c</span> <span class="id" title="var">h2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeCovers_subheap</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c</span> <span class="id" title="var">h1</span> <span class="id" title="var">h2</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">l</span> <span class="id" title="var">v</span>, <span class="id" title="var">h1</span> <span class="id" title="var">l</span> = <span class="id" title="var">Some</span> <span class="id" title="var">v</span> -&gt; <span class="id" title="var">h2</span> <span class="id" title="var">l</span> = <span class="id" title="var">Some</span> <span class="id" title="var">v</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeCovers</span> <span class="id" title="var">c</span> <span class="id" title="var">h1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeCovers</span> <span class="id" title="var">c</span> <span class="id" title="var">h2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeCovers_occ</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c</span> <span class="id" title="var">h1</span> <span class="id" title="var">h2</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">l</span>, <span class="id" title="var">h1</span> <span class="id" title="var">l</span> &lt;&gt; <span class="id" title="var">None</span> -&gt; <span class="id" title="var">h2</span> <span class="id" title="var">l</span> &lt;&gt; <span class="id" title="var">None</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeCovers</span> <span class="id" title="var">c</span> <span class="id" title="var">h1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeCovers</span> <span class="id" title="var">c</span> <span class="id" title="var">h2</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab88"></a><h3 class="section">Agreement</h3>
+
+<div class="paragraph"> </div>
+
+ The following relation <span class="inlinecode"><span class="id" title="var">pmeAgree</span></span> <span class="inlinecode"><span class="id" title="var">c1</span></span> <span class="inlinecode"><span class="id" title="var">c2</span></span> captures whether
+    two process map entries <span class="inlinecode"><span class="id" title="var">c1</span></span> and <span class="inlinecode"><span class="id" title="var">c2</span></span> agree on their static
+    components (which is everything except processes). 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmeAgree</span> (<span class="id" title="var">c1</span> <span class="id" title="var">c2</span> : <span class="id" title="var">ProcMapEntry</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">c1</span>, <span class="id" title="var">c2</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEfree</span>, <span class="id" title="var">PEfree</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEinvalid</span>, <span class="id" title="var">PEinvalid</span> =&gt; <span class="id" title="var">True</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEelem</span> <span class="id" title="var">q1</span> <span class="id" title="var">_</span> <span class="id" title="var">xs1</span> <span class="id" title="var">F1</span>, <span class="id" title="var">PEelem</span> <span class="id" title="var">q2</span> <span class="id" title="var">_</span> <span class="id" title="var">xs2</span> <span class="id" title="var">F2</span> =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">q1</span> = <span class="id" title="var">q2</span> /\ <span class="id" title="var">xs1</span> = <span class="id" title="var">xs2</span> /\ <span class="id" title="var">map</span> <span class="id" title="var">F1</span> <span class="id" title="var">xs1</span> = <span class="id" title="var">map</span> <span class="id" title="var">F2</span> <span class="id" title="var">xs2</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span>, <span class="id" title="var">_</span> =&gt; <span class="id" title="var">False</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The <span class="inlinecode"><span class="id" title="var">pmeAgree</span></span> relation is an equivalence relation. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmeAgree_refl</span> : <span class="id" title="var">Reflexive</span> <span class="id" title="var">pmeAgree</span>.<br/>
+ <span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmeAgree_symm</span> : <span class="id" title="var">Symmetric</span> <span class="id" title="var">pmeAgree</span>.<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmeAgree_trans</span> : <span class="id" title="var">Transitive</span> <span class="id" title="var">pmeAgree</span>.<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmeAgree_equiv</span> : <span class="id" title="var">Equivalence</span> <span class="id" title="var">pmeAgree</span>.<br/>
+ 
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmeAgree_refl</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Bisimilarity is a subrelation of agreement. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmeAgree_bisim</span> : <span class="id" title="var">subrelation</span> <span class="id" title="var">pmeBisim</span> <span class="id" title="var">pmeAgree</span>.<br/>
+ 
+<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmeAgree</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmeAgree</span> ==&gt; <span class="id" title="var">pmeAgree</span> ==&gt; <span class="id" title="var">iff</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">pmeAgree_agree_mor</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Disjointness is closed under agreement. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_agree_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeAgree</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c3</span> -&gt; <span class="id" title="var">pmeDisj</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>.<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeDisj_agree_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeAgree</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeDisj</span> <span class="id" title="var">c3</span> <span class="id" title="var">c1</span> -&gt; <span class="id" title="var">pmeDisj</span> <span class="id" title="var">c3</span> <span class="id" title="var">c2</span>.<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmeDisj</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmeAgree</span> ==&gt; <span class="id" title="var">pmeAgree</span> ==&gt; <span class="id" title="var">iff</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">pmeDisj_agree_mor</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Disjoint union is closed under agreement 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeAgree_union_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeAgree</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeAgree</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c3</span>) (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>).<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeAgree_union_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeAgree</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeAgree</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c3</span> <span class="id" title="var">c1</span>) (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c3</span> <span class="id" title="var">c2</span>).<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmeUnion</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmeAgree</span> ==&gt; <span class="id" title="var">pmeAgree</span> ==&gt; <span class="id" title="var">pmeAgree</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">pmeUnion_agree_mor</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmeAgree_union_l</span> <span class="id" title="var">pmeAgree_union_r</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Below are other useful properties of agreement. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeProj_agree</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>, <span class="id" title="var">pmeAgree</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeProj</span> <span class="id" title="var">c1</span> = <span class="id" title="var">pmeProj</span> <span class="id" title="var">c2</span>.<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmeProj</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmeAgree</span> ==&gt; <span class="id" title="var">eq</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">pmeProj_agree_mor</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeCovers_agree</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">h</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeAgree</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeCovers</span> <span class="id" title="var">c1</span> <span class="id" title="var">h</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeCovers</span> <span class="id" title="var">c2</span> <span class="id" title="var">h</span>.<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmeCovers</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmeAgree</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">iff</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">pmeCovers_agree_mor</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab89"></a><h3 class="section">Weak agreement</h3>
+
+<div class="paragraph"> </div>
+
+ Weak agreement between two process map entries is
+    essentially the same as ordinary agreement, however
+    permission components are not involved in the agreement. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmeWeakAgree</span> (<span class="id" title="var">c1</span> <span class="id" title="var">c2</span> : <span class="id" title="var">ProcMapEntry</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">c1</span>, <span class="id" title="var">c2</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEfree</span>, <span class="id" title="var">PEfree</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEinvalid</span>, <span class="id" title="var">PEinvalid</span> =&gt; <span class="id" title="var">True</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEelem</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">xs1</span> <span class="id" title="var">F1</span>, <span class="id" title="var">PEelem</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">xs2</span> <span class="id" title="var">F2</span> =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">xs1</span> = <span class="id" title="var">xs2</span> /\ <span class="id" title="var">map</span> <span class="id" title="var">F1</span> <span class="id" title="var">xs1</span> = <span class="id" title="var">map</span> <span class="id" title="var">F2</span> <span class="id" title="var">xs2</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span>, <span class="id" title="var">_</span> =&gt; <span class="id" title="var">False</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Weak agreement is an equivalence relation. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmeWeakAgree_refl</span> : <span class="id" title="var">Reflexive</span> <span class="id" title="var">pmeWeakAgree</span>.<br/>
+ <span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmeWeakAgree_symm</span> : <span class="id" title="var">Symmetric</span> <span class="id" title="var">pmeWeakAgree</span>.<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmeWeakAgree_trans</span> : <span class="id" title="var">Transitive</span> <span class="id" title="var">pmeWeakAgree</span>.<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmeWeakAgree_equiv</span> : <span class="id" title="var">Equivalence</span> <span class="id" title="var">pmeWeakAgree</span>.<br/>
+ 
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmeWeakAgree_refl</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+(Ordinary) agreement and bisimilarity are both
+    subrelations of weak agreement. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmeAgree_weaken</span> : <span class="id" title="var">subrelation</span> <span class="id" title="var">pmeAgree</span> <span class="id" title="var">pmeWeakAgree</span>.<br/>
+ <span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmeWeakAgree_bisim</span> : <span class="id" title="var">subrelation</span> <span class="id" title="var">pmeBisim</span> <span class="id" title="var">pmeWeakAgree</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Below are several other useful properties of weak agreement. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeWeakAgree_union_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeWeakAgree</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeWeakAgree</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c3</span>) (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>).<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeWeakAgree_union_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">c3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeWeakAgree</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeWeakAgree</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c3</span> <span class="id" title="var">c1</span>) (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c3</span> <span class="id" title="var">c2</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmeWeakAgree_union_l</span> <span class="id" title="var">pmeWeakAgree_union_r</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeWeakAgree_proj</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeWeakAgree</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeProj</span> <span class="id" title="var">c1</span> = <span class="id" title="var">pmeProj</span> <span class="id" title="var">c2</span>.<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmeProj</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmeWeakAgree</span> ==&gt; <span class="id" title="var">eq</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">pmeWeakAgree_proj_mor</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab90"></a><h3 class="section">Occupation</h3>
+
+<div class="paragraph"> </div>
+
+ The <span class="inlinecode"><span class="id" title="var">pmeOcc</span></span> predicate determines whether a given process map entry
+    is <i>occupied</i>, i.e., contains some element. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmeOcc</span> (<span class="id" title="var">c</span> : <span class="id" title="var">ProcMapEntry</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="var">c</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">PEelem</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">True</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span> =&gt; <span class="id" title="var">False</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Occupation is closed under bisimilarity. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeOcc_bisim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>, <span class="id" title="var">pmeBisim</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeOcc</span> <span class="id" title="var">c1</span> -&gt; <span class="id" title="var">pmeOcc</span> <span class="id" title="var">c2</span>.<br/>
+ <span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmeOcc</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmeBisim</span> ==&gt; <span class="id" title="var">iff</span> <span class="id" title="keyword">as</span> <span class="id" title="var">pmeOcc_bisim_mor</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Occupation is closed under (ordinary) agreement. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeOcc_agree</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>, <span class="id" title="var">pmeAgree</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeOcc</span> <span class="id" title="var">c1</span> -&gt; <span class="id" title="var">pmeOcc</span> <span class="id" title="var">c2</span>.<br/>
+ <span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmeOcc</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmeAgree</span> ==&gt; <span class="id" title="var">iff</span> <span class="id" title="keyword">as</span> <span class="id" title="var">pmeOcc_agree_mor</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Below are several more useful properties of occupation. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeOcc_union_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeOcc</span> <span class="id" title="var">c1</span> -&gt; <span class="id" title="var">pmeOcc</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>).<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeOcc_union_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeOcc</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeOcc</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeOcc_destruct</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeOcc</span> <span class="id" title="var">c</span> -&gt; <span class="id" title="tactic">exists</span> <span class="id" title="var">q</span> <span class="id" title="var">P</span> <span class="id" title="var">xs</span> <span class="id" title="var">f</span>, <span class="id" title="var">c</span> = <span class="id" title="var">PEelem</span> <span class="id" title="var">q</span> <span class="id" title="var">P</span> <span class="id" title="var">xs</span> <span class="id" title="var">f</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmeWeakAgree_union_occ</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt; <span class="id" title="var">pmeOcc</span> <span class="id" title="var">c1</span> -&gt; <span class="id" title="var">pmeWeakAgree</span> <span class="id" title="var">c1</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab91"></a><h2 class="section">Process maps</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">ProcMap</span> := <span class="id" title="var">Val</span> -&gt; <span class="id" title="var">ProcMapEntry</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The <i>identity</i> process map is free at every entry. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmIden</span> : <span class="id" title="var">ProcMap</span> := <span class="id" title="keyword">fun</span> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">PEfree</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+An update operation for process maps: 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmUpdate</span> (<span class="id" title="var">pm</span> : <span class="id" title="var">ProcMap</span>)(<span class="id" title="var">v</span> : <span class="id" title="var">Val</span>)(<span class="id" title="var">c</span> : <span class="id" title="var">ProcMapEntry</span>) :=<br/>
+&nbsp;&nbsp;<span class="id" title="var">update</span> <span class="id" title="var">val_eq_dec</span> <span class="id" title="var">pm</span> <span class="id" title="var">v</span> <span class="id" title="var">c</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab92"></a><h3 class="section">Bisimilarity</h3>
+
+<div class="paragraph"> </div>
+
+ Two process maps are <i>bisimilar</i> if their entries
+    are pointwise bisimilar (with respect to <span class="inlinecode"><span class="id" title="var">pmeBisim</span></span>). 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmBisim</span> : <span class="id" title="var">relation</span> <span class="id" title="var">ProcMap</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="var">pointwise_relation</span> <span class="id" title="var">Val</span> <span class="id" title="var">pmeBisim</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> &quot;pm1 ≃ pm2" := (<span class="id" title="var">pmBisim</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) (<span class="id" title="var">only</span> <span class="id" title="var">printing</span>, <span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Bisimilarity preserves any free entries. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmBisim_free</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pid</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmBisim</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pm1</span> <span class="id" title="var">pid</span> = <span class="id" title="var">PEfree</span> -&gt; <span class="id" title="var">pm2</span> <span class="id" title="var">pid</span> = <span class="id" title="var">PEfree</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Bisimilarity is an equivalence relation. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmBisim_refl</span> : <span class="id" title="var">Reflexive</span> <span class="id" title="var">pmBisim</span>.<br/>
+ <span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmBisim_symm</span> : <span class="id" title="var">Symmetric</span> <span class="id" title="var">pmBisim</span>.<br/>
+ <span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmBisim_trans</span> : <span class="id" title="var">Transitive</span> <span class="id" title="var">pmBisim</span>.<br/>
+ <span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmBisim_equiv</span> : <span class="id" title="var">Equivalence</span> <span class="id" title="var">pmBisim</span>.<br/>
+ 
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmBisim_refl</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Process map updates are closed under bisimilarity. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmUpdate_bisim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pid</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmBisim</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeBisim</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmBisim</span> (<span class="id" title="var">pmUpdate</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pid</span> <span class="id" title="var">c1</span>) (<span class="id" title="var">pmUpdate</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pid</span> <span class="id" title="var">c2</span>).<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmUpdate</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmBisim</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">pmeBisim</span> ==&gt; <span class="id" title="var">pmBisim</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">pmUpdate_bisim_mor</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmUpdate_bisim</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab93"></a><h3 class="section">Validity</h3>
+
+<div class="paragraph"> </div>
+
+ Any process map is defined to be <i>valid</i>
+    if all its entries are valid. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmValid</span> (<span class="id" title="var">pm</span> : <span class="id" title="var">ProcMap</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pid</span>, <span class="id" title="var">pmeValid</span> (<span class="id" title="var">pm</span> <span class="id" title="var">pid</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> &quot;√ pm" := (<span class="id" title="var">pmValid</span> <span class="id" title="var">pm</span>) (<span class="id" title="var">only</span> <span class="id" title="var">printing</span>, <span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Validity is closed under bisimilarity. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmValid_bisim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>, <span class="id" title="var">pmBisim</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmValid</span> <span class="id" title="var">pm1</span> -&gt; <span class="id" title="var">pmValid</span> <span class="id" title="var">pm2</span>.<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmValid</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmBisim</span> ==&gt; <span class="id" title="var">iff</span> <span class="id" title="keyword">as</span> <span class="id" title="var">pmValid_bisim_mor</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Below are several other useful properties of validity. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmValid_iden</span> : <span class="id" title="var">pmValid</span> <span class="id" title="var">pmIden</span>.<br/>
+ 
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmValid_iden</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmValid_update</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c</span> <span class="id" title="var">pm</span> <span class="id" title="var">pid</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeValid</span> <span class="id" title="var">c</span> -&gt; <span class="id" title="var">pmValid</span> <span class="id" title="var">pm</span> -&gt; <span class="id" title="var">pmValid</span> (<span class="id" title="var">pmUpdate</span> <span class="id" title="var">pm</span> <span class="id" title="var">pid</span> <span class="id" title="var">c</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab94"></a><h3 class="section">Disjointness</h3>
+
+<div class="paragraph"> </div>
+
+ Two process maps are defined to be <i>disjoint</i>
+    if their entries are disjoint pairwise. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmDisj</span> : <span class="id" title="var">relation</span> <span class="id" title="var">ProcMap</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="var">pointwise_relation</span> <span class="id" title="var">Val</span> <span class="id" title="var">pmeDisj</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> &quot;pm1 ⟂ pm2" := (<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) (<span class="id" title="var">only</span> <span class="id" title="var">printing</span>, <span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Process map disjointness is a symmetric relation. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmDisj_symm</span> : <span class="id" title="var">Symmetric</span> <span class="id" title="var">pmDisj</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Disjointness is closed under bisimilarity. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmDisj_bisim_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmBisim</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm</span> -&gt; <span class="id" title="var">pmDisj</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm</span>.<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmDisj_bisim_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmBisim</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmDisj</span> <span class="id" title="var">pm</span> <span class="id" title="var">pm1</span> -&gt; <span class="id" title="var">pmDisj</span> <span class="id" title="var">pm</span> <span class="id" title="var">pm2</span>.<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmDisj</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmBisim</span> ==&gt; <span class="id" title="var">pmBisim</span> ==&gt; <span class="id" title="var">iff</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">pmDisj_bisim_mor</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Any two process maps related by disjointness are also valid. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmDisj_valid_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>, <span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmValid</span> <span class="id" title="var">pm1</span>.<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmDisj_valid_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>, <span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmValid</span> <span class="id" title="var">pm2</span>.<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmDisj_valid</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>, <span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmValid</span> <span class="id" title="var">pm1</span> /\ <span class="id" title="var">pmValid</span> <span class="id" title="var">pm2</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Below are other useful properties of disjointness. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmDisj_iden_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm</span>, <span class="id" title="var">pmValid</span> <span class="id" title="var">pm</span> -&gt; <span class="id" title="var">pmDisj</span> <span class="id" title="var">pm</span> <span class="id" title="var">pmIden</span>.<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmDisj_iden_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm</span>, <span class="id" title="var">pmValid</span> <span class="id" title="var">pm</span> -&gt; <span class="id" title="var">pmDisj</span> <span class="id" title="var">pmIden</span> <span class="id" title="var">pm</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmDisj_iden_l</span> <span class="id" title="var">pmDisj_iden_r</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmDisj_upd</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pid</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeDisj</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> (<span class="id" title="var">pmUpdate</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pid</span> <span class="id" title="var">c1</span>) (<span class="id" title="var">pmUpdate</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pid</span> <span class="id" title="var">c2</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmDisj_upd</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab95"></a><h3 class="section">Disjoint union</h3>
+
+<div class="paragraph"> </div>
+
+ The (disjoint) union of two process maps is defined
+    to be the pairwise disjoint union of their entries. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmUnion</span> (<span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> : <span class="id" title="var">ProcMap</span>) : <span class="id" title="var">ProcMap</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">fun</span> <span class="id" title="var">pid</span> =&gt; <span class="id" title="var">pmeUnion</span> (<span class="id" title="var">pm1</span> <span class="id" title="var">pid</span>) (<span class="id" title="var">pm2</span> <span class="id" title="var">pid</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> &quot;pm1 ⨄ pm2" :=<br/>
+&nbsp;&nbsp;(<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>)<br/>
+&nbsp;&nbsp;(<span class="id" title="var">only</span> <span class="id" title="var">printing</span>, <span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80, <span class="id" title="tactic">right</span> <span class="id" title="keyword">associativity</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Disjoint union is closed under bisimilarity. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmUnion_bisim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm1'</span> <span class="id" title="var">pm2'</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmBisim</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmBisim</span> <span class="id" title="var">pm1'</span> <span class="id" title="var">pm2'</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmBisim</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm1'</span>) (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm2'</span>).<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmUnion</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmBisim</span> ==&gt; <span class="id" title="var">pmBisim</span> ==&gt; <span class="id" title="var">pmBisim</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">pmUnion_bisim_mor</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Identity laws for disjoint union: 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmUnion_iden_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm</span>, <span class="id" title="var">pmUnion</span> <span class="id" title="var">pm</span> <span class="id" title="var">pmIden</span> = <span class="id" title="var">pm</span>.<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmUnion_iden_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm</span>, <span class="id" title="var">pmUnion</span> <span class="id" title="var">pmIden</span> <span class="id" title="var">pm</span> = <span class="id" title="var">pm</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Rewrite</span> <span class="id" title="var">pmUnion_iden_l</span> <span class="id" title="var">pmUnion_iden_r</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Disjoint union is associative and commutative. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmUnion_assoc</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmBisim</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">pmUnion</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) <span class="id" title="var">pm3</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmUnion_comm</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmBisim</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm1</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Below are various other useful properties of <span class="inlinecode"><span class="id" title="var">pmUnion</span></span>. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmUnion_valid</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmValid</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmUnion_valid</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmDisj_union_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmDisj</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) <span class="id" title="var">pm3</span> -&gt; <span class="id" title="var">pmDisj</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>.<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmDisj_union_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span> -&gt; <span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>) -&gt; <span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmDisj_assoc_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) <span class="id" title="var">pm3</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>).<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmDisj_assoc_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) <span class="id" title="var">pm3</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmDisj_swap_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) <span class="id" title="var">pm3</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm3</span>) <span class="id" title="var">pm2</span>.<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmDisj_swap_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) <span class="id" title="var">pm3</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>) <span class="id" title="var">pm1</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmUnion_update</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">pid</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmUpdate</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) <span class="id" title="var">pid</span> (<span class="id" title="var">pmeUnion</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>) =<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmUnion</span> (<span class="id" title="var">pmUpdate</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pid</span> <span class="id" title="var">c1</span>) (<span class="id" title="var">pmUpdate</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pid</span> <span class="id" title="var">c2</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Rewrite</span> <span class="id" title="var">pmUnion_update</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmUnion_elem</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pid</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmeUnion</span> (<span class="id" title="var">pm1</span> <span class="id" title="var">pid</span>) (<span class="id" title="var">pm2</span> <span class="id" title="var">pid</span>) = <span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pid</span>.<br/>
+ 
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmDisj_middle</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span> <span class="id" title="var">pm4</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm3</span> <span class="id" title="var">pm4</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm3</span> <span class="id" title="var">pm4</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmDisj_compat</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span> <span class="id" title="var">pm4</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm3</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm4</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm3</span>) (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm4</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm3</span> <span class="id" title="var">pm4</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmUnion_swap_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmBisim</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm2</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm3</span>)).<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmUnion_swap_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmBisim</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">pmUnion</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) <span class="id" title="var">pm3</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">pmUnion</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm3</span>) <span class="id" title="var">pm2</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmUnion_swap_l</span> <span class="id" title="var">pmUnion_swap_r</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmUnion_compat</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span> <span class="id" title="var">pm4</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmBisim</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">pmUnion</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm3</span>) (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm4</span>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">pmUnion</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm3</span> <span class="id" title="var">pm4</span>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmUnion_compat</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab96"></a><h3 class="section">Finiteness</h3>
+
+<div class="paragraph"> </div>
+
+ Any process map <span class="inlinecode"><span class="id" title="var">pm</span></span> is defined to be <i>finite</i>
+    all occupied entries of <span class="inlinecode"><span class="id" title="var">pm</span></span> can be mapped to a
+    finite structure, in this case a list. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmFinite</span> (<span class="id" title="var">pm</span> : <span class="id" title="var">ProcMap</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">xs</span> : <span class="id" title="var">list</span> <span class="id" title="var">Val</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pid</span>, <span class="id" title="var">pm</span> <span class="id" title="var">pid</span> &lt;&gt; <span class="id" title="var">PEfree</span> -&gt; <span class="id" title="var">In</span> <span class="id" title="var">pid</span> <span class="id" title="var">xs</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Finiteness is closed under bisimilarity. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmFinite_bisim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmBisim</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmFinite</span> <span class="id" title="var">pm1</span> -&gt; <span class="id" title="var">pmFinite</span> <span class="id" title="var">pm2</span>.<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmFinite</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmBisim</span> ==&gt; <span class="id" title="var">iff</span> <span class="id" title="keyword">as</span> <span class="id" title="var">pmFinite_bisim_mor</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+The identity process map is trivially finite. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmFinite_iden</span> : <span class="id" title="var">pmFinite</span> <span class="id" title="var">pmIden</span>.<br/>
+ 
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmFinite_iden</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The following property is the main property of interest:
+    if a process map <span class="inlinecode"><span class="id" title="var">pm</span></span> is finite, then one is always able
+    to find an unoccupied entry in <span class="inlinecode"><span class="id" title="var">pm</span></span>. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmFinite_free</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm</span>, <span class="id" title="var">pmFinite</span> <span class="id" title="var">pm</span> -&gt; <span class="id" title="tactic">exists</span> <span class="id" title="var">pid</span>, <span class="id" title="var">pm</span> <span class="id" title="var">pid</span> = <span class="id" title="var">PEfree</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Process map updates preserve finiteness. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmFinite_update</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm</span> <span class="id" title="var">pid</span> <span class="id" title="var">c</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmFinite</span> <span class="id" title="var">pm</span> -&gt; <span class="id" title="var">pmFinite</span> (<span class="id" title="var">pmUpdate</span> <span class="id" title="var">pm</span> <span class="id" title="var">pid</span> <span class="id" title="var">c</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Below are several other interesting properties of finiteness. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmFinite_union</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmFinite</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) &lt;-&gt; <span class="id" title="var">pmFinite</span> <span class="id" title="var">pm1</span> /\ <span class="id" title="var">pmFinite</span> <span class="id" title="var">pm2</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab97"></a><h3 class="section">Projections</h3>
+
+<div class="paragraph"> </div>
+
+ Any value <span class="inlinecode"><span class="id" title="var">v</span></span> is defined to be <i>in the projection of <span class="inlinecode"><span class="id" title="var">pm</span></span></i>
+    if <span class="inlinecode"><span class="id" title="var">v</span></span> is in the projection of one of the entries of <span class="inlinecode"><span class="id" title="var">pm</span></span>. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmProj</span> (<span class="id" title="var">pm</span> : <span class="id" title="var">ProcMap</span>)(<span class="id" title="var">v</span> : <span class="id" title="var">Val</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">pid</span>, <span class="id" title="var">In</span> <span class="id" title="var">v</span> (<span class="id" title="var">pmeProj</span> (<span class="id" title="var">pm</span> <span class="id" title="var">pid</span>)).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Process map projections are closed under bisimilarity. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmProj_bisim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">l</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmBisim</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmProj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">l</span> -&gt; <span class="id" title="var">pmProj</span> <span class="id" title="var">pm2</span> <span class="id" title="var">l</span>.<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmProj</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmBisim</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">iff</span> <span class="id" title="keyword">as</span> <span class="id" title="var">pmProj_bisim_mor</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Below are several other useful properties of projections. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmProj_union</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">v</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmProj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">v</span> -&gt; <span class="id" title="var">pmProj</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) <span class="id" title="var">v</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab98"></a><h3 class="section">Coverings</h3>
+
+<div class="paragraph"> </div>
+
+ Any process map <span class="inlinecode"><span class="id" title="var">pm</span></span> is defined to <i>cover a heap <span class="inlinecode"><span class="id" title="var">h</span></span></i>
+    if all entries of <span class="inlinecode"><span class="id" title="var">pm</span></span> cover <span class="inlinecode"><span class="id" title="var">h</span></span> (with respect to <span class="inlinecode"><span class="id" title="var">pmeCovers</span></span>). 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmCovers</span> (<span class="id" title="var">pm</span> : <span class="id" title="var">ProcMap</span>)(<span class="id" title="var">h</span> : <span class="id" title="var">Heap</span>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pid</span>, <span class="id" title="var">pmeCovers</span> (<span class="id" title="var">pm</span> <span class="id" title="var">pid</span>) <span class="id" title="var">h</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Coverage is closed under bisimilarity. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmCovers_bisim</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">h</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmBisim</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmCovers</span> <span class="id" title="var">pm1</span> <span class="id" title="var">h</span> -&gt; <span class="id" title="var">pmCovers</span> <span class="id" title="var">pm2</span> <span class="id" title="var">h</span>.<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmCovers</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmBisim</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">iff</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">pmCovers_bisim_mor</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The identity process map covers any heap. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmCovers_iden</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">h</span>, <span class="id" title="var">pmCovers</span> <span class="id" title="var">pmIden</span> <span class="id" title="var">h</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Below are several other useful properties of coverage. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmCovers_update</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm</span> <span class="id" title="var">h</span> <span class="id" title="var">pid</span> <span class="id" title="var">c</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">l</span>, <span class="id" title="var">In</span> <span class="id" title="var">l</span> (<span class="id" title="var">pmeProj</span> <span class="id" title="var">c</span>) -&gt; <span class="id" title="tactic">exists</span> <span class="id" title="var">v</span>, <span class="id" title="var">h</span> <span class="id" title="var">l</span> = <span class="id" title="var">Some</span> <span class="id" title="var">v</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmCovers</span> <span class="id" title="var">pm</span> <span class="id" title="var">h</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmCovers</span> (<span class="id" title="var">pmUpdate</span> <span class="id" title="var">pm</span> <span class="id" title="var">pid</span> <span class="id" title="var">c</span>) <span class="id" title="var">h</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmCovers_hUpdate</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm</span> <span class="id" title="var">h</span> <span class="id" title="var">l</span> <span class="id" title="var">v</span>,<br/>
+&nbsp;&nbsp;~ <span class="id" title="var">pmProj</span> <span class="id" title="var">pm</span> <span class="id" title="var">l</span> -&gt; <span class="id" title="var">pmCovers</span> <span class="id" title="var">pm</span> <span class="id" title="var">h</span> -&gt; <span class="id" title="var">pmCovers</span> <span class="id" title="var">pm</span> (<span class="id" title="var">hUpdate</span> <span class="id" title="var">h</span> <span class="id" title="var">l</span> <span class="id" title="var">v</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmCovers_union</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">h</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmDisj</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmCovers</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>) <span class="id" title="var">h</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmCovers</span> <span class="id" title="var">pm1</span> <span class="id" title="var">h</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmCovers_agrees</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm</span> <span class="id" title="var">h1</span> <span class="id" title="var">h2</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">l</span>, <span class="id" title="var">pmProj</span> <span class="id" title="var">pm</span> <span class="id" title="var">l</span> -&gt; <span class="id" title="var">h1</span> <span class="id" title="var">l</span> = <span class="id" title="var">h2</span> <span class="id" title="var">l</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmCovers</span> <span class="id" title="var">pm</span> <span class="id" title="var">h1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmCovers</span> <span class="id" title="var">pm</span> <span class="id" title="var">h2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmCovers_subheap</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm</span> <span class="id" title="var">h1</span> <span class="id" title="var">h2</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">l</span> <span class="id" title="var">v</span>, <span class="id" title="var">h1</span> <span class="id" title="var">l</span> = <span class="id" title="var">Some</span> <span class="id" title="var">v</span> -&gt; <span class="id" title="var">h2</span> <span class="id" title="var">l</span> = <span class="id" title="var">Some</span> <span class="id" title="var">v</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmCovers</span> <span class="id" title="var">pm</span> <span class="id" title="var">h1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmCovers</span> <span class="id" title="var">pm</span> <span class="id" title="var">h2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmCovers_occ</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm</span> <span class="id" title="var">h1</span> <span class="id" title="var">h2</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <span class="id" title="var">l</span>, <span class="id" title="var">h1</span> <span class="id" title="var">l</span> &lt;&gt; <span class="id" title="var">None</span> -&gt; <span class="id" title="var">h2</span> <span class="id" title="var">l</span> &lt;&gt; <span class="id" title="var">None</span>) -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmCovers</span> <span class="id" title="var">pm</span> <span class="id" title="var">h1</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmCovers</span> <span class="id" title="var">pm</span> <span class="id" title="var">h2</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab99"></a><h3 class="section">Agreement</h3>
+
+<div class="paragraph"> </div>
+
+ Any two process maps are defined to <i>agree</i>
+    if their entries agree pairwise with respect to <span class="inlinecode"><span class="id" title="var">pmeAgree</span></span>. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmAgree</span> : <span class="id" title="var">relation</span> <span class="id" title="var">ProcMap</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="var">pointwise_relation</span> <span class="id" title="var">Val</span> <span class="id" title="var">pmeAgree</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Process map agreement is an equivalence relation. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmAgree_refl</span> : <span class="id" title="var">Reflexive</span> <span class="id" title="var">pmAgree</span>.<br/>
+ <span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmAgree_symm</span> : <span class="id" title="var">Symmetric</span> <span class="id" title="var">pmAgree</span>.<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmAgree_trans</span> : <span class="id" title="var">Transitive</span> <span class="id" title="var">pmAgree</span>.<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmAgree_equiv</span> : <span class="id" title="var">Equivalence</span> <span class="id" title="var">pmAgree</span>.<br/>
+ 
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmAgree_refl</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Bisimilarity is a subrelation of agreement. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmAgree_bisim</span> : <span class="id" title="var">subrelation</span> <span class="id" title="var">pmBisim</span> <span class="id" title="var">pmAgree</span>.<br/>
+ 
+<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmAgree</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmAgree</span> ==&gt; <span class="id" title="var">pmAgree</span> ==&gt; <span class="id" title="var">iff</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">pmAgree_agree_mor</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Disjoint maps may always be replaced by agreeing ones. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmDisj</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmAgree</span> ==&gt; <span class="id" title="var">pmAgree</span> ==&gt; <span class="id" title="var">iff</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">pmDisj_agree_mor</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Process map finiteness is closed under agreement. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmFinite_agree</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmAgree</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmFinite</span> <span class="id" title="var">pm1</span> -&gt; <span class="id" title="var">pmFinite</span> <span class="id" title="var">pm2</span>.<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmFinite</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmAgree</span> ==&gt; <span class="id" title="var">iff</span> <span class="id" title="keyword">as</span> <span class="id" title="var">pmFinite_agree_mor</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Also coverage is closed under agreement. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmCovers_agree</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">h</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmAgree</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmCovers</span> <span class="id" title="var">pm1</span> <span class="id" title="var">h</span> -&gt; <span class="id" title="var">pmCovers</span> <span class="id" title="var">pm2</span> <span class="id" title="var">h</span>.<br/>
+ <span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmCovers</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmAgree</span> ==&gt; <span class="id" title="var">eq</span> ==&gt; <span class="id" title="var">iff</span> <span class="id" title="keyword">as</span> <span class="id" title="var">pmCovers_agree_mor</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Disjoint union is closed under agreement. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmAgree_union_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmAgree</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmAgree</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm3</span>) (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>).<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmAgree_union_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmAgree</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmAgree</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm3</span> <span class="id" title="var">pm1</span>) (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm3</span> <span class="id" title="var">pm2</span>).<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmUnion</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmAgree</span> ==&gt; <span class="id" title="var">pmAgree</span> ==&gt; <span class="id" title="var">pmAgree</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">pmUnion_agree_mor</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmAgree_union_l</span> <span class="id" title="var">pmAgree_union_r</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab100"></a><h3 class="section">Weak agreement</h3>
+
+<div class="paragraph"> </div>
+
+ Two process maps are defined to <i>agree weakly</i>
+    if their entries pointwise weakly agree with each other,
+    with respect to <span class="inlinecode"><span class="id" title="var">pmeWeakAgree</span></span>. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <span class="id" title="var">pmWeakAgree</span> : <span class="id" title="var">relation</span> <span class="id" title="var">ProcMap</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="var">pointwise_relation</span> <span class="id" title="var">Val</span> <span class="id" title="var">pmeWeakAgree</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Weak agreement is an equivalence relation. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmWeakAgree_refl</span> : <span class="id" title="var">Reflexive</span> <span class="id" title="var">pmWeakAgree</span>.<br/>
+ <span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmWeakAgree_symm</span> : <span class="id" title="var">Symmetric</span> <span class="id" title="var">pmWeakAgree</span>.<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmWeakAgree_trans</span> : <span class="id" title="var">Transitive</span> <span class="id" title="var">pmWeakAgree</span>.<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmWeakAgree_equiv</span> : <span class="id" title="var">Equivalence</span> <span class="id" title="var">pmWeakAgree</span>.<br/>
+ 
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmWeakAgree_refl</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Bisimilarity and agreement are both subrelations of weak agreement. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmWeakAgree_bisim</span> : <span class="id" title="var">subrelation</span> <span class="id" title="var">pmBisim</span> <span class="id" title="var">pmWeakAgree</span>.<br/>
+ <span class="id" title="keyword">Global Instance</span> <span class="id" title="var">pmWeakAgree_agree</span> : <span class="id" title="var">subrelation</span> <span class="id" title="var">pmAgree</span> <span class="id" title="var">pmWeakAgree</span>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Process map finiteness is closed under weak agreement. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmFinite_weak_agree</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmWeakAgree</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt; <span class="id" title="var">pmFinite</span> <span class="id" title="var">pm1</span> -&gt; <span class="id" title="var">pmFinite</span> <span class="id" title="var">pm2</span>.<br/>
+<span class="id" title="keyword">Add</span> <span class="id" title="var">Parametric</span> <span class="id" title="var">Morphism</span> : <span class="id" title="var">pmFinite</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">with</span> <span class="id" title="var">signature</span> <span class="id" title="var">pmWeakAgree</span> ==&gt; <span class="id" title="var">iff</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">pmFinite_weak_agree_mor</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Below are other useful properties of weak agreement. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmWeakAgree_union_l</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmWeakAgree</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmWeakAgree</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm3</span>) (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>).<br/>
+<span class="id" title="keyword">Lemma</span> <span class="id" title="var">pmWeakAgree_union_r</span> :<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> <span class="id" title="var">pm3</span>,<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmWeakAgree</span> <span class="id" title="var">pm1</span> <span class="id" title="var">pm2</span> -&gt;<br/>
+&nbsp;&nbsp;<span class="id" title="var">pmWeakAgree</span> (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm3</span> <span class="id" title="var">pm1</span>) (<span class="id" title="var">pmUnion</span> <span class="id" title="var">pm3</span> <span class="id" title="var">pm2</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">pmWeakAgree_union_l</span> <span class="id" title="var">pmWeakAgree_union_r</span> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <span class="id" title="var">ProcMaps</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>
