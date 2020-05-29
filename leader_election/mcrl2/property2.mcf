@@ -1,0 +1,3 @@
+% Property 2: any process that announces itself as leader is the proper leader (in this case that's rank 1)
+
+nu X . (forall rank: Int . [announce(rank)]val(rank == 1) && [true]X)

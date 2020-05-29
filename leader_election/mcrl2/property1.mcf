@@ -1,0 +1,3 @@
+% Property 1: eventually some process announces itself as leader
+
+mu X . (exists rank: Int . <announce(rank)>true || <true>X)

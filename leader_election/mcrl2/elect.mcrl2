@@ -1,0 +1,35 @@
+sort Msg = struct
+  Mint(Int) ? isMint;
+
+map initchan : Int -> List(Msg);
+var rank: Int;
+eqn initchan(rank) = [];
+
+map msgmax : Msg # Msg -> Msg;
+var n1, n2: Int;
+eqn msgmax(Mint(n1), Mint(n2)) = Mint(max(n1, n2));
+
+act
+  csend, crecv, esend, erecv, send, recv : Int # Msg;
+  announce : Int;
+  
+proc
+  Chan(chan: Int -> List(Msg)) =
+    (sum rank:Int . (0 < #chan(rank)) -> csend(rank, head(chan(rank))) . Chan(chan[rank -> tail(chan(rank))])) +
+    (sum rank:Int, msg:Msg . crecv(rank, msg) . Chan(chan[rank -> chan(rank) <| msg]));
+  
+  InternalElect(rank: Int, v0: Msg, v: Msg, size: Pos, n: Int) =
+    (0 < n) -> esend((rank + 1) mod size, v) .
+      sum v':Msg . erecv(rank, v') . InternalElect(rank, v0, msgmax(v, v'), size, n - 1)
+    <> (v == v0) -> announce(rank);
+    
+  Elect(rank: Int, size: Pos, v: Msg) =
+    InternalElect(rank, v, v, size, size);
+  
+  ParElect = Elect(0, 4, Mint(4)) || Elect(1, 4, Mint(7)) || Elect(2, 4, Mint(6)) || Elect(3, 4, Mint(2));
+
+init allow({send, recv, announce},
+  comm({esend|crecv -> send, csend|erecv -> recv},
+    Chan(initchan) || ParElect
+  )
+);

@@ -1,0 +1,7 @@
+% Property 3: a leader is only announced once
+
+nu X . (
+  (forall rank1: Int . [announce(rank1)](
+    nu Y . (forall rank2: Int . [announce(rank2)]false && [true]Y))
+  ) && [true]X
+)
